@@ -59,7 +59,8 @@ begin
 
     for S in SL do begin
       SA := S.Split(' ');
-      SymbolTable.Add(SA[1], StrToInt('x'+SA[0].Substring(3)));
+      if (Length(SA) >= 2) and (Pos(':', SA[0]) > 0) then
+        SymbolTable.Add(SA[1], StrToInt('$'+SA[0].Substring(3)));
     end;
   finally
     SL.Free;
