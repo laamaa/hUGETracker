@@ -65,6 +65,13 @@ jobs:
           path: rgbds
           key: rgbds-0.8.0-linux
 
+      - name: Cache Homebrew downloads
+        if: matrix.name == 'Mac'
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/Homebrew/downloads
+          key: homebrew-${{ runner.os }}-lazarus
+
       # ── Install dependencies ────────────────────────────────
 
       - name: Install Ubuntu dependencies
