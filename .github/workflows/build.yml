@@ -1,21 +1,33 @@
 name: Build hUGETracker
 
 on:
-  - push
-  - pull_request
-  - workflow_dispatch
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      all_platforms:
+        description: 'Build all platforms (Linux, Mac, Windows)'
+        type: boolean
+        default: false
 
 jobs:
+  setup-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set.outputs.matrix }}
+    steps:
+      - id: set
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.all_platforms }}" == "true" ]]; then
+            echo 'matrix={"include":[{"os":"ubuntu-24.04","name":"Linux"},{"os":"macos-15-intel","name":"Mac"},{"os":"windows-2025","name":"Windows"}]}' >> "$GITHUB_OUTPUT"
+          else
+            echo 'matrix={"include":[{"os":"macos-15-intel","name":"Mac"}]}' >> "$GITHUB_OUTPUT"
+          fi
+
   build:
+    needs: setup-matrix
     strategy:
-      matrix:
-        os:
-          - ubuntu-24.04
-          - macos-14
-          - windows-2025
-        include:
-          - os: macos-14
-            name: Mac
+      matrix: ${{ fromJSON(needs.setup-matrix.outputs.matrix) }}
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -26,15 +38,46 @@ jobs:
           path: hUGETracker
           submodules: true # This is intentionally not "recursive", change if needed
 
+      # ── Caches ──────────────────────────────────────────────
+
+      - name: Cache FFmpeg build
+        id: cache-ffmpeg
+        uses: actions/cache@v4
+        with:
+          path: |
+            ffmpeg-4.4/ffmpeg
+            ffmpeg-4.4/ffmpeg.exe
+          key: ffmpeg-4.4-lame-3.100-${{ runner.os }}-${{ hashFiles('hUGETracker/.github/scripts/build-ffmpeg.sh') }}
+
+      - name: Cache SDL2 build
+        if: matrix.name == 'Mac'
+        id: cache-sdl2
+        uses: actions/cache@v4
+        with:
+          path: SDL-release-2.28.5/build/.libs/libSDL2.a
+          key: sdl2-2.28.5-macos
+
+      - name: Cache RGBDS build
+        if: matrix.name == 'Linux'
+        id: cache-rgbds
+        uses: actions/cache@v4
+        with:
+          path: rgbds
+          key: rgbds-0.8.0-linux
+
+      # ── Install dependencies ────────────────────────────────
+
       - name: Install Ubuntu dependencies
         if: matrix.name == 'Linux'
         run: |
           sudo apt -qq update
           sudo apt install -yq libsdl2-dev bison
-          curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.8.0/rgbds-0.8.0.tar.gz'
-          tar xvf rgbds.tar.gz rgbds/{include,src,Makefile}
-          cd rgbds
-          make -j4 rgbasm rgblink rgbfix Q=
+
+          if [ "${{ steps.cache-rgbds.outputs.cache-hit }}" != "true" ]; then
+            curl -Lo rgbds.tar.gz 'https://github.com/gbdev/rgbds/releases/download/v0.8.0/rgbds-0.8.0.tar.gz'
+            tar xvf rgbds.tar.gz rgbds/{include,src,Makefile}
+            cd rgbds && make -j4 rgbasm rgblink rgbfix Q= && cd ..
+          fi
 
           wget https://netactuate.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%203.0/lazarus-project_3.0.0-0_amd64.deb
           wget https://cytranet.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%203.0/fpc-laz_3.2.2-210709_amd64.deb
@@ -49,9 +92,14 @@ jobs:
         if: matrix.name == 'Mac'
         run: |
           brew install --cask lazarus
-          brew install rgbds
-          brew install automake libtool shtool wget yasm
+          brew install rgbds automake libtool shtool wget yasm
 
+          mkdir rgbds
+          for f in asm link fix; do ln -s `which rgb$f` rgbds/rgb$f; done
+
+      - name: Build SDL2 (macOS)
+        if: matrix.name == 'Mac' && steps.cache-sdl2.outputs.cache-hit != 'true'
+        run: |
           curl -Lo 'sdl2.tgz' https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.28.5.tar.gz
           tar xzf sdl2.tgz
           pushd SDL-release-2.28.5
@@ -60,11 +108,11 @@ jobs:
                       --disable-timers --disable-atomic --disable-file --disable-misc \
                       --disable-locale --disable-loadso --disable-cpuinfo
           make -j$(sysctl -n hw.ncpu)
-          sudo cp build/.libs/libSDL2.a /usr/local/lib
           popd
 
-          mkdir rgbds
-          for f in asm link fix; do ln -s `which rgb$f` rgbds/rgb$f; done
+      - name: Install SDL2 (macOS)
+        if: matrix.name == 'Mac'
+        run: sudo cp SDL-release-2.28.5/build/.libs/libSDL2.a /usr/local/lib
 
       - name: Install Windows dependencies
         if: matrix.name == 'Windows'
@@ -88,15 +136,19 @@ jobs:
             mingw-w64-x86_64-toolchain
             yasm
 
+      # ── Compile FFmpeg ──────────────────────────────────────
+
       - name: Compile FFmpeg (Windows)
-        if: matrix.name == 'Windows'
+        if: matrix.name == 'Windows' && steps.cache-ffmpeg.outputs.cache-hit != 'true'
         shell: msys2 {0}
         run: ./hUGETracker/.github/scripts/build-ffmpeg.sh
 
       - name: Compile FFmpeg (Mac and Linux)
-        if: matrix.name == 'Mac' || matrix.name == 'Linux'
+        if: (matrix.name == 'Mac' || matrix.name == 'Linux') && steps.cache-ffmpeg.outputs.cache-hit != 'true'
         shell: bash
         run: ./hUGETracker/.github/scripts/build-ffmpeg.sh
+
+      # ── Build ───────────────────────────────────────────────
 
       - name: Build release
         shell: bash
@@ -110,6 +162,8 @@ jobs:
 
           lazbuild src/hUGETracker.lpi --build-mode="Production ${{ matrix.name }}"
           lazbuild src/uge2source/uge2source.lpi --build-mode=Release
+
+      # ── Package ─────────────────────────────────────────────
 
       - name: Package build
         shell: bash
