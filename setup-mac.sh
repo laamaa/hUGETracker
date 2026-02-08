@@ -1,6 +1,6 @@
 set -x
 
-BUILD_DIR=src/lib/Development/x86_64-darwin
+BUILD_DIR=src/lib/Development/aarch64-darwin
 
 mkdir -p $BUILD_DIR
 

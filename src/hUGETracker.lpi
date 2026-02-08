@@ -149,6 +149,7 @@
           <CodeGeneration>
             <SmartLinkUnit Value="True"/>
             <RelocatableUnit Value="True"/>
+            <TargetCPU Value="aarch64"/>
             <TargetOS Value="darwin"/>
           </CodeGeneration>
           <Linking>
