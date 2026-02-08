@@ -14,12 +14,8 @@ jobs:
           - macos-14
           - windows-2025
         include:
-          - os: ubuntu-24.04
-            name: Linux
           - os: macos-14
             name: Mac
-          - os: windows-2025
-            name: Windows
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
