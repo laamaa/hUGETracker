@@ -50,19 +50,7 @@ jobs:
         run: |
           brew install --cask lazarus
           brew install rgbds
-          brew install automake libtool shtool wget yasm
-
-          curl -Lo 'sdl2.tgz' https://github.com/libsdl-org/SDL/archive/refs/tags/release-2.28.5.tar.gz
-          tar xzf sdl2.tgz
-          pushd SDL-release-2.28.5
-          ./configure --disable-video --disable-render --disable-haptic --disable-joystick \
-                      --disable-power --disable-hidapi --disable-sensor --disable-filesystem \
-                      --disable-timers --disable-atomic --disable-file --disable-misc \
-                      --disable-locale --disable-loadso --disable-cpuinfo
-          make -j$(sysctl -n hw.ncpu)
-          sudo cp build/.libs/libSDL2.a /usr/local/lib
-          popd
-
+          brew install automake libtool shtool wget yasm sdl2
           mkdir rgbds
           for f in asm link fix; do ln -s `which rgb$f` rgbds/rgb$f; done
 
