@@ -3157,6 +3157,9 @@ object frmTracker: TfrmTracker
     object GotoWavesAction: TAction
       Caption = 'GotoWavesAction'
       OnExecute = GotoWavesActionExecute
+      SecondaryShortCuts.Strings = (
+        'F4'
+      )
       ShortCut = 16436
     end
     object GotoCommentsAction: TAction

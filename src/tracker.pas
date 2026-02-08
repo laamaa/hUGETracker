@@ -581,6 +581,8 @@ type
   public
     procedure OnTrackerGridResize(Sender: TObject);
     procedure OnTrackerGridCursorOutOfBounds;
+    procedure OnTrackerGridOrderChange(Delta: Integer);
+    procedure OnTrackerGridInstrumentChange(Delta: Integer);
   end;
 
 var
@@ -989,6 +991,21 @@ begin
   end;
 end;
 
+procedure TfrmTracker.OnTrackerGridOrderChange(Delta: Integer);
+var
+  NewRow: Integer;
+begin
+  NewRow := OrderEditStringGrid.Row + Delta;
+  if (NewRow >= 1) and (NewRow <= OrderEditStringGrid.RowCount-1) then
+    OrderEditStringGrid.Row := NewRow;
+end;
+
+procedure TfrmTracker.OnTrackerGridInstrumentChange(Delta: Integer);
+begin
+  InstrumentComboBox.ItemIndex := EnsureRange(InstrumentComboBox.ItemIndex + Delta, 0, InstrumentComboBox.Items.Count-1);
+  TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
+end;
+
 procedure TfrmTracker.LoadWave(Wave: Integer);
 begin
   CurrentWave := @Song.Waves[Wave];
@@ -1232,6 +1249,8 @@ begin
   TrackerGrid := TTrackerGrid.Create(Self, ScrollBox1, Song.Patterns, 4);
   TrackerGrid.OnResize:=@OnTrackerGridResize;
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
+  TrackerGrid.OnOrderChange:=@OnTrackerGridOrderChange;
+  TrackerGrid.OnInstrumentChange:=@OnTrackerGridInstrumentChange;
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
   TrackerGrid.PopupMenu := TrackerGridPopup;

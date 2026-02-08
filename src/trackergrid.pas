@@ -123,6 +123,8 @@ type
     SelectedInstrument, SelectedOctave, Step: Integer;
 
     OnCursorOutOfBounds: procedure of object;
+    OnOrderChange: procedure(Delta: Integer) of object;
+    OnInstrumentChange: procedure(Delta: Integer) of object;
 
     property HighlightedRow: Integer read FHighlightedRow write SetHighlightedRow;
     property SelectionGridRect: TRect read GetSelectionGridRect write SetSelectionGridRect;
@@ -542,6 +544,28 @@ begin
   inherited KeyDown(Key, Shift);
 
   if Key in [VK_CONTROL, VK_SHIFT] then Exit;
+
+  if (ssCtrl in Shift) and (Key in [VK_UP, VK_DOWN]) then begin
+    if Assigned(OnInstrumentChange) then begin
+      if Key = VK_UP then
+        OnInstrumentChange(1)
+      else
+        OnInstrumentChange(-1);
+    end;
+    Key := 0;
+    Exit;
+  end;
+
+  if ([ssAlt, ssMeta] * Shift <> []) and (Key in [VK_UP, VK_DOWN]) then begin
+    if Assigned(OnOrderChange) then begin
+      if Key = VK_UP then
+        OnOrderChange(-1)
+      else
+        OnOrderChange(1);
+    end;
+    Key := 0;
+    Exit;
+  end;
 
   case Key of
     VK_UP: Dec(Cursor.Y);
