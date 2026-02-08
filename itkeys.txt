@@ -1,0 +1,241 @@
+D Appendix: Keyboard Hotkey Listing
+D.1 Global Keys
+
+F1 Help (Context sensitive!)
+Shift-F1 MIDI Screen
+Ctrl-F1 System Configuration
+F2 Pattern Editor / Pattern Editor Options
+F3 Sample List
+Ctrl-F3 Sample Library
+F4 Instrument List
+Ctrl-F4 Instrument Library
+F5 Play Information / Play song
+Ctrl-F5 Play Song
+F6 Play current pattern
+Shift-F6 Play song from current Order
+F7 Play from mark / current row
+F8 Stop Playback
+F9 Load Module
+Shift-F9 Message Editor
+F10 Save Module
+F11 Order List and Panning
+2*F11 Order List and Channel Volume
+Ctrl-F11 Schism Logging
+F12 Song Variables & Directory Configuration
+Ctrl-F12 Palette Configuration
+{ } Decrease/Increase playback speed
+Ctrl-[ ] Decrease/Increase playback tempo
+[ ] Decrease/Increase global volume
+Alt-F1 -> Alt-F8 Toggle channels 1->8
+Ctrl-D DOS Shell
+Ctrl-E Refresh screen and reset cache identification
+Ctrl-I Reinitialise sound driver
+Ctrl-M Toggle mouse cursor
+Ctrl-N New Song
+Ctrl-Q Quit to DOS
+Ctrl-Q Quit Schism Tracker
+Ctrl-S Save current song
+Ctrl-G Go to order/pattern/row given time
+PrintScreen Take a screenshot (also Ctrl-Alt-D)
+D.2 On text widgets
+Ctrl-C Copy to clipboard (also Ctrl-Insert)
+Ctrl-V Paste from clipboard (also Shift-Insert)
+52
+D.3 Info Page
+Insert Add a new window
+Delete Delete current window
+Tab/Shift-Tab Move between windows
+Up/Dn/Left/Right Move highlighted channel
+PgUp/PgDn Change window type
+Alt-Up/Down Move window base up/down
+V Toggle between volume/velocity bars
+I Toggle between sample/instrument names
+Q Mute/Unmute current channel
+S Solo current channel
+Grey +, Grey - Move forwards/backwards one pattern in song
+Alt-S Toggle Stereo playback
+Alt-R Reverse output channels
+G Goto pattern currently playing
+D.4 Instrument List
+Enter Load new instrument
+Ctrl-PgUp/PgDn Move instrument up/down (when not on list)
+Alt-B Pre-Loop cut envelope
+Alt-C Clear instrument name & filename
+Alt-W Wipe instrument data
+Spacebar Edit instrument name (ESC to exit)
+Alt-D Delete instrument & all related samples
+Alt-L Post-Loop cut envelope
+Alt-N Toggle Multichannel playback
+Alt-O Save current instrument to disk
+Alt-P Copy instrument
+Alt-R Replace current instrument in song
+Alt-S Swap instruments (in song also)
+Alt-U Update pattern data
+Alt-X Exchange instruments (only in Instrument List)
+Alt-Ins Insert instrument slot (updates pattern data)
+Alt-Del Remove instrument slot (updates pattern data)
+< > Decrease/Increase playback channel
+D.5 Instrument List - Note Translation
+Enter Pickup sample number & default play note
+< > Decrease/Increase sample number
+53
+Alt-A Change all samples
+Alt-N Enter next note
+Alt-P Enter previous note
+Alt-Up/Down Transpose all notes a semitone up/down
+Alt-Ins/Del Insert/Delete a row from the table
+, (Comma) Toggle edit mask for current field
+D.6 Instrument List - Envelope Keys
+Enter Pick up/Drop current node
+Insert Add node
+Delete Delete node
+Alt-Arrow Keys Move node (fast)
+Press Spacebar Play default note
+Release Space Note off command
+D.7 Sample List
+Enter Load new sample
+Tab Move between options
+PgUp/PgDn Move up/down (when not on list)
+Alt-A Convert Signed to/from Unsigned samples
+Alt-B Pre-Loop cut sample
+Alt-C Clear Sample Name & Filename (Used in Sample Name window)
+Alt-D Delete Sample
+Alt-E Resize Sample (with interpolation)
+Alt-F Resize Sample (without interpolation)
+Alt-G Reverse Sample
+Alt-H Centralise Sample
+Alt-I Invert Sample
+Alt-L Post-Loop cut sample
+Alt-M Sample amplifier
+Alt-N Toggle Multichannel playback
+Alt-O Save current sample to disk (IT Format)
+Alt-P Copy sample
+Alt-Q Toggle sample quality
+Alt-R Replace current sample in song
+Alt-S Swap sample (in song also)
+Alt-T Save current sample to disk (Export Format)
+Alt-W Save current sample to disk (RAW Format)
+Alt-X Exchange sample (only in Sample List)
+Alt-Ins Insert sample slot (updates pattern data)
+Alt-Del Remove sample slot (updates pattern data)
+< > Decrease/Increase playback channel
+54
+Alt-Grey + Increase C-5 Frequency by 1 octave
+Alt-Grey - Decrease C-5 Frequency by 1 octave
+Ctrl-Grey + Increase C-5 Frequency by 1 semitone
+Ctrl-Grey - Decrease C-5 Frequency by 1 semitone
+D.8 Message Editor
+Ctrl-Y Delete line
+Alt-C Clear message
+D.9 Order List - Panning
+N Insert next pattern
+Shift-N Copy current pattern to new pattern, and insert order
+- End of song mark
++ Skip to next Order mark
+Ins Insert a pattern
+Del Delete a pattern
+Tab/Shift-Tab Move to next window
+Ctrl-F7 Play this Order next
+Alt-F11 Lock/unlock order list
+Alt-R Sort order list
+Alt-U Search for unused patterns
+Ctrl-B Link (diskwriter) this pattern to the current sample
+Ctrl-O Copy (diskwriter) this pattern to the current sample
+C Continue to next entry in order list of current pattern
+Alt-Enter Save order list
+Alt-Backspace Swap order list with saved order list
+D.10 Order List - Panning
+L/M/R/S Set panning to Left/Middle/Right/Surround
+D.11 Pattern Editor
+Grey +,- Next/Previous pattern (*)
+Shift +,- Next/Previous 4 pattern (*)
+Ctrl +,- Next/Previous order’s pattern (*)
+0-9 Change octave/volume/instrument
+0-9, A-F Change effect value
+A-Z Change effect
+. (Period) Clear field(s)
+1 Note cut (^^^)
+‘ Note off (===) / Panning Toggle
+55
+Shift-‘ Note fade (~~~)
+Spacebar Use last note/instrument/volume/effect/effect value
+Caps Lock+Key Preview note
+Enter Get default note/instrument/volume/effect
+< or Ctrl-Up Decrease instrument
+> or Ctrl-Down Increase instrument
+Grey /,* Decrease/Increase octave
+, (Comma) Toggle edit mask for current field
+Ins/Del Insert/Delete a row to/from current channel
+Alt-Ins/Del Insert/Delete an entire row to/from pattern (*)
+Up/Down Move up/down by the skipvalue (set with Alt 0-9)
+Ctrl-Home/End Move up/down by 1 row
+Alt-Up/Down Slide pattern up/down by 1 row
+Left/Right Move cursor left/right
+Alt-Left/Right Move forwards/backwards one channel
+Tab/Shift-Tab Move forwards/backwards to note column
+PgUp/PgDn Move up/down n lines (n=Row Hilight Major)
+Ctrl-PgUp/PgDn Move to top/bottom of pattern
+Home Move to start of column/start of line/start of pattern
+End Move to end of column/end of line/end of pattern
+Backspace Move to previous position (accounts for Multichannel)
+Alt-N Toggle Multichannel mode for current channel
+2*Alt-N Multichannel Selection menu
+Alt-Enter Store pattern data
+Alt-Backspace Revert pattern data (*)
+Ctrl-Backspace Undo - any function with (*) can be undone
+Ctrl-C Toggle centralise cursor
+Ctrl-H Toggle current row hilight
+Ctrl-V Toggle default volume display
+Ctrl-F2 Set pattern length
+D.12 Pattern Editor - Track View
+Alt-T Cycle current track’s view
+Alt-R Clear all track views
+Alt-H Toggle track view divisions
+Ctrl-0 Deselect current track
+Ctrl-1 - Ctrl-5 View current track in scheme 1-5
+Ctrl-Left/Right Move left/right between track view columns
+L-Ctrl&Shift 1-4 Quick view scheme setup
+56
+Ctrl-T Toggle View-Channel cursor-tracking
+D.13 Pattern Editor - Block Commands
+Alt-B Mark beginning of block
+Alt-E Mark end of block
+Alt-D Quick mark n/2n/4n/... lines (n=Row Hilight Major)
+Alt-L Mark entire column/pattern
+Shift-Arrows Mark block
+Alt-U Unmark block/Release clipboard memory
+Alt-Q Raise notes by a semitone (*)
+Alt-A Lower notes by a semitone (*)
+Alt-S Set Instrument (*)
+Alt-V Set volume/panning (*)
+Alt-W Wipe vol/pan not associated with a note/instrument (*)
+Alt-K Slide volume/panning column (*)
+2*Alt-K Wipe all volume/panning controls (*)
+Alt-J Volume amplifier (*) / Fast volume attenuate (*)
+Alt-Z Cut block (*)
+Alt-X Slide effect value (*)
+2*Alt-X Wipe all effect data (*)
+Alt-C Copy block into clipboard
+Alt-P Paste data from clipboard (*)
+Alt-O Overwrite with data from clipboard (*)
+2*Alt-O Grow pattern to clipboard length
+Alt-M Mix each row from clipboard with pattern data (*)
+2*Alt-M Mix each field from clipboard with pattern data
+Alt-F Double block length (*)
+Alt-G Halve block length (*)
+Alt-I Select Template mode / Fast volume amplify (*)
+Ctrl-J Toggle fast volume mode
+Ctrl-U Selection volume vary / Fast volume vary (*)
+Ctrl-Y Selection panning vary / Fast panning vary (*)
+Ctrl-K Selection effect vary / Fast effect vary (*)
+D.14 Pattern Editor - Playback Commands
+4 Play note under cursor
+8 Play row
+Ctrl-F6 Play from current row
+Ctrl-F7 Set/Clear playback mark (for use with F7)
+Alt-F9 Toggle current channel
+57
+Alt-F10 Solo current channel
+Scroll Lock Toggle playback tracing (also Ctrl-F)
+Ctrl-Z Change MIDI playback trigger
+Alt-Scroll Lock Toggle MIDI input

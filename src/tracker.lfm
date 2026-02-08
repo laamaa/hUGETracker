@@ -2288,7 +2288,7 @@ object frmTracker: TfrmTracker
       DisableIfNoHandler = False
       Hint = 'Undo'
       ImageIndex = 66
-      ShortCut = 16474
+      ShortCut = 0
     end
     object EditDelete1: TEditDelete
       Category = 'Edit'
@@ -3080,16 +3080,16 @@ object frmTracker: TfrmTracker
       ImageIndex = 89
       OnExecute = PlayCursorActionExecute
       SecondaryShortCuts.Strings = (
-        'F6'
+        'F7'
       )
       ShortCut = 8205
     end
     object PlayOrderAction: TAction
-      Hint = 'Play song from start of order'
+      Hint = 'Play current pattern (looped)'
       ImageIndex = 89
       OnExecute = PlayOrderActionExecute
       SecondaryShortCuts.Strings = (
-        'F7'
+        'F6'
       )
       ShortCut = 16397
     end
@@ -3136,44 +3136,54 @@ object frmTracker: TfrmTracker
     object GotoGeneralAction: TAction
       Caption = 'GotoGeneralAction'
       OnExecute = GotoGeneralActionExecute
-      ShortCut = 32839
+      ShortCut = 16433
     end
     object GotoPatternsAction: TAction
       Caption = 'GotoPatternsAction'
       OnExecute = GotoPatternsActionExecute
-      ShortCut = 32848
+      SecondaryShortCuts.Strings = (
+        'F2'
+      )
+      ShortCut = 16434
     end
     object GotoInstrumentsAction: TAction
       Caption = 'GotoInstrumentsAction'
       OnExecute = GotoInstrumentsActionExecute
-      ShortCut = 32841
+      SecondaryShortCuts.Strings = (
+        'F3'
+      )
+      ShortCut = 16435
     end
     object GotoWavesAction: TAction
       Caption = 'GotoWavesAction'
       OnExecute = GotoWavesActionExecute
-      ShortCut = 32855
+      ShortCut = 16436
     end
     object GotoCommentsAction: TAction
       Caption = 'GotoCommentsAction'
       OnExecute = GotoCommentsActionExecute
-      ShortCut = 32835
+      ShortCut = 16437
     end
     object GotoRoutinesAction: TAction
       Caption = 'GotoRoutinesAction'
       OnExecute = GotoRoutinesActionExecute
-      ShortCut = 32850
+      ShortCut = 16438
     end
     object IncrementCurrentInstrumentAction: TAction
       Caption = 'IncrementCurrentInstrumentAction'
       OnExecute = IncrementCurrentInstrumentActionExecute
       SecondaryShortCuts.Strings = (
         'Shift+='
+        'Ctrl+Up'
       )
       ShortCut = 8379
     end
     object DecrementCurrentInstrumentAction: TAction
       Caption = 'DecrementCurrentInstrumentAction'
       OnExecute = DecrementCurrentInstrumentActionExecute
+      SecondaryShortCuts.Strings = (
+        'Ctrl+Down'
+      )
       ShortCut = 8381
     end
     object IncreaseOctaveAction: TAction
@@ -3190,6 +3200,193 @@ object frmTracker: TfrmTracker
       ImageIndex = 92
       OnExecute = SingleStepActionExecute
       ShortCut = 13
+    end
+    object UndoAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Undo'
+      OnExecute = UndoActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      ShortCut = 16474
+    end
+    object RedoAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Redo'
+      OnExecute = RedoActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Ctrl+Shift+Z'
+      )
+      ShortCut = 16473
+    end
+    object MarkBlockBeginAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Mark Block Begin'
+      OnExecute = MarkBlockBeginActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+B'
+      )
+      ShortCut = 32834
+    end
+    object MarkBlockEndAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Mark Block End'
+      OnExecute = MarkBlockEndActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+E'
+      )
+      ShortCut = 32837
+    end
+    object SelectColumnAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Select Column'
+      OnExecute = SelectColumnActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+L'
+      )
+      ShortCut = 32844
+    end
+    object DeselectAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Deselect'
+      OnExecute = DeselectActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+U'
+      )
+      ShortCut = 32853
+    end
+    object QuickSelectAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Quick Select'
+      OnExecute = QuickSelectActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+D'
+      )
+      ShortCut = 32836
+    end
+    object TransposeUpAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Transpose Up'
+      OnExecute = TransposeUpActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+Q'
+      )
+      ShortCut = 32849
+    end
+    object TransposeDownAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Transpose Down'
+      OnExecute = TransposeDownActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+A'
+      )
+      ShortCut = 32833
+    end
+    object SetInstrumentAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Set Instrument'
+      OnExecute = SetInstrumentActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+S'
+      )
+      ShortCut = 32851
+    end
+    object CutBlockAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Cut Block'
+      OnExecute = CutBlockActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+Z'
+      )
+      ShortCut = 32858
+    end
+    object CopyBlockAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Copy Block'
+      OnExecute = CopyBlockActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+C'
+      )
+      ShortCut = 32835
+    end
+    object PasteBlockAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Paste Block'
+      OnExecute = PasteBlockActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+P'
+      )
+      ShortCut = 32848
+    end
+    object MixPasteAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Mix Paste'
+      OnExecute = MixPasteActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+M'
+      )
+      ShortCut = 32845
+    end
+    object OverwritePasteAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Overwrite Paste'
+      OnExecute = OverwritePasteActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+O'
+      )
+      ShortCut = 32847
+    end
+    object InterpolateAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Interpolate'
+      OnExecute = InterpolateActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+K'
+      )
+      ShortCut = 32843
+    end
+    object DoubleBlockAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Double Block Length'
+      OnExecute = DoubleBlockActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+F'
+      )
+      ShortCut = 32838
+    end
+    object HalveBlockAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Halve Block Length'
+      OnExecute = HalveBlockActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+G'
+      )
+      ShortCut = 32839
+    end
+    object RepeatPasteAction: TAction
+      Category = 'TrackerGrid'
+      Caption = 'Repeat Paste'
+      OnExecute = RepeatPasteActionExecute
+      OnUpdate = TrackerGridActionUpdate
+      SecondaryShortCuts.Strings = (
+        'Meta+R'
+      )
+      ShortCut = 32850
     end
   end
   object GBDKCSaveDialog: TSaveDialog

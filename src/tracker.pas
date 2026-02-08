@@ -43,6 +43,25 @@ type
 
   TfrmTracker = class(TForm)
     SingleStepAction: TAction;
+    UndoAction: TAction;
+    RedoAction: TAction;
+    MarkBlockBeginAction: TAction;
+    MarkBlockEndAction: TAction;
+    SelectColumnAction: TAction;
+    DeselectAction: TAction;
+    QuickSelectAction: TAction;
+    TransposeUpAction: TAction;
+    TransposeDownAction: TAction;
+    SetInstrumentAction: TAction;
+    CutBlockAction: TAction;
+    CopyBlockAction: TAction;
+    PasteBlockAction: TAction;
+    MixPasteAction: TAction;
+    OverwritePasteAction: TAction;
+    InterpolateAction: TAction;
+    DoubleBlockAction: TAction;
+    HalveBlockAction: TAction;
+    RepeatPasteAction: TAction;
     FileSave1: TAction;
     MenuItem26: TMenuItem;
     MenuItem42: TMenuItem;
@@ -470,6 +489,26 @@ type
     procedure WavePaintboxPaint(Sender: TObject);
     procedure WaveVisualizerPaint(Sender: TObject);
     procedure WaveVolumeComboboxChange(Sender: TObject);
+    procedure TrackerGridActionUpdate(Sender: TObject);
+    procedure UndoActionExecute(Sender: TObject);
+    procedure RedoActionExecute(Sender: TObject);
+    procedure MarkBlockBeginActionExecute(Sender: TObject);
+    procedure MarkBlockEndActionExecute(Sender: TObject);
+    procedure SelectColumnActionExecute(Sender: TObject);
+    procedure DeselectActionExecute(Sender: TObject);
+    procedure QuickSelectActionExecute(Sender: TObject);
+    procedure TransposeUpActionExecute(Sender: TObject);
+    procedure TransposeDownActionExecute(Sender: TObject);
+    procedure SetInstrumentActionExecute(Sender: TObject);
+    procedure CutBlockActionExecute(Sender: TObject);
+    procedure CopyBlockActionExecute(Sender: TObject);
+    procedure PasteBlockActionExecute(Sender: TObject);
+    procedure MixPasteActionExecute(Sender: TObject);
+    procedure OverwritePasteActionExecute(Sender: TObject);
+    procedure InterpolateActionExecute(Sender: TObject);
+    procedure DoubleBlockActionExecute(Sender: TObject);
+    procedure HalveBlockActionExecute(Sender: TObject);
+    procedure RepeatPasteActionExecute(Sender: TObject);
   private
     Song: TSong;
     CurrentInstrument: ^TInstrument;
@@ -1835,6 +1874,8 @@ end;
 procedure TfrmTracker.GotoPatternsActionExecute(Sender: TObject);
 begin
   PageControl1.TabIndex := 1;
+  if Assigned(TrackerGrid) then
+    TrackerGrid.SetFocus;
 end;
 
 procedure TfrmTracker.GotoInstrumentsActionExecute(Sender: TObject);
@@ -1906,6 +1947,106 @@ end;
 procedure TfrmTracker.InsertRowForAllActionUpdate(Sender: TObject);
 begin
   (Sender as TAction).Enabled := ActiveControl = TrackerGrid;
+end;
+
+procedure TfrmTracker.TrackerGridActionUpdate(Sender: TObject);
+begin
+  (Sender as TAction).Enabled := ActiveControl = TrackerGrid;
+end;
+
+procedure TfrmTracker.UndoActionExecute(Sender: TObject);
+begin
+  TrackerGrid.DoUndo;
+end;
+
+procedure TfrmTracker.RedoActionExecute(Sender: TObject);
+begin
+  TrackerGrid.DoRedo;
+end;
+
+procedure TfrmTracker.MarkBlockBeginActionExecute(Sender: TObject);
+begin
+  TrackerGrid.MarkBlockBegin;
+end;
+
+procedure TfrmTracker.MarkBlockEndActionExecute(Sender: TObject);
+begin
+  TrackerGrid.MarkBlockEnd;
+end;
+
+procedure TfrmTracker.SelectColumnActionExecute(Sender: TObject);
+begin
+  TrackerGrid.SelectColumn;
+end;
+
+procedure TfrmTracker.DeselectActionExecute(Sender: TObject);
+begin
+  TrackerGrid.Deselect;
+end;
+
+procedure TfrmTracker.QuickSelectActionExecute(Sender: TObject);
+begin
+  TrackerGrid.QuickSelect;
+end;
+
+procedure TfrmTracker.TransposeUpActionExecute(Sender: TObject);
+begin
+  TrackerGrid.TransposeSelection(1);
+end;
+
+procedure TfrmTracker.TransposeDownActionExecute(Sender: TObject);
+begin
+  TrackerGrid.TransposeSelection(-1);
+end;
+
+procedure TfrmTracker.SetInstrumentActionExecute(Sender: TObject);
+begin
+  TrackerGrid.ChangeSelectionInstrument;
+end;
+
+procedure TfrmTracker.CutBlockActionExecute(Sender: TObject);
+begin
+  PostMessage(TrackerGrid.Handle, LM_CUT, 0, 0);
+end;
+
+procedure TfrmTracker.CopyBlockActionExecute(Sender: TObject);
+begin
+  PostMessage(TrackerGrid.Handle, LM_COPY, 0, 0);
+end;
+
+procedure TfrmTracker.PasteBlockActionExecute(Sender: TObject);
+begin
+  PostMessage(TrackerGrid.Handle, LM_PASTE, 0, 0);
+end;
+
+procedure TfrmTracker.MixPasteActionExecute(Sender: TObject);
+begin
+  TrackerGrid.DoMixPaste;
+end;
+
+procedure TfrmTracker.OverwritePasteActionExecute(Sender: TObject);
+begin
+  PostMessage(TrackerGrid.Handle, LM_PASTE, 0, 0);
+end;
+
+procedure TfrmTracker.InterpolateActionExecute(Sender: TObject);
+begin
+  TrackerGrid.InterpolateSelection;
+end;
+
+procedure TfrmTracker.DoubleBlockActionExecute(Sender: TObject);
+begin
+  TrackerGrid.DoubleBlockLength;
+end;
+
+procedure TfrmTracker.HalveBlockActionExecute(Sender: TObject);
+begin
+  TrackerGrid.HalveBlockLength;
+end;
+
+procedure TfrmTracker.RepeatPasteActionExecute(Sender: TObject);
+begin
+  TrackerGrid.DoRepeatPaste;
 end;
 
 procedure TfrmTracker.MenuItem37Click(Sender: TObject);
@@ -1989,7 +2130,7 @@ begin
 
     PokeSymbol(SYM_CURRENT_ORDER, 2*(OrderEditStringGrid.Row-1));
     PokeSymbol(SYM_ROW, 0);
-    PokeSymbol(SYM_LOOP_ORDER, IfThen(LoopSongToolButton.Down, 1, 0));
+    PokeSymbol(SYM_LOOP_ORDER, 1);
 
     UnlockPlayback;
   end

@@ -152,6 +152,13 @@ type
     procedure ChangeSelectionInstrument;
     procedure OpenEffectEditor;
 
+    procedure MarkBlockBegin;
+    procedure MarkBlockEnd;
+    procedure Deselect;
+    procedure QuickSelect;
+    procedure DoubleBlockLength;
+    procedure HalveBlockLength;
+
     constructor Create(
       AOwner: TComponent;
       Parent: TWinControl;
@@ -534,7 +541,7 @@ procedure TTrackerGrid.KeyDown(var Key: Word; Shift: TShiftState);
 begin
   inherited KeyDown(Key, Shift);
 
-  if Key in [VK_CONTROL, VK_SHIFT, VK_DELETE] then Exit;
+  if Key in [VK_CONTROL, VK_SHIFT] then Exit;
 
   case Key of
     VK_UP: Dec(Cursor.Y);
@@ -559,9 +566,19 @@ begin
         Cursor.X := (NumColumns-1);
 
       Key := 0;
+    end;
+    VK_OEM_PERIOD: begin
+      if (not (ssCtrl in Shift)) and (not (ssAlt in Shift)) then begin
+        BeginUndoAction;
+        ClearAt(Cursor);
+        Inc(Cursor.Y, Step);
+        ClampCursors;
+        Invalidate;
+        EndUndoAction;
+      end;
     end
     else
-      if (not (ssCtrl in Shift)) and (not (ssShift in Shift)) then
+      if (not (ssCtrl in Shift)) and (not (ssShift in Shift)) and (not (ssAlt in Shift)) and (not (ssMeta in Shift)) then
         case Cursor.SelectedPart of
           cpNote:         InputNote(Key);
           cpInstrument:   InputInstrument(Key);
@@ -1026,7 +1043,13 @@ begin
   Temp := -1;
 
   with Patterns[Cursor.X]^[Cursor.Y] do
-    if Keybindings.TryGetData(Key, Temp) then begin
+    if Key = VK_DELETE then begin
+      Note := NO_NOTE;
+      Instrument := 0;
+      Inc(Cursor.Y, Step);
+      ClampCursors;
+    end
+    else if Keybindings.TryGetData(Key, Temp) then begin
       Note := Min(HIGHEST_NOTE, Temp+(SelectedOctave*12));
       if SelectedInstrument <> 0 then
         Instrument := SelectedInstrument;
@@ -1518,6 +1541,135 @@ begin
   Other.SelectedPart := High(TCellPart);
 
   Invalidate;
+end;
+
+procedure TTrackerGrid.MarkBlockBegin;
+begin
+  Other := Cursor;
+  Invalidate;
+end;
+
+procedure TTrackerGrid.MarkBlockEnd;
+var
+  Temp: TSelectionPos;
+begin
+  Temp := Other;
+  Other := Cursor;
+  Cursor := Temp;
+  NormalizeCursors;
+  Invalidate;
+end;
+
+procedure TTrackerGrid.Deselect;
+begin
+  Other := Cursor;
+  Invalidate;
+end;
+
+procedure TTrackerGrid.QuickSelect;
+begin
+  Other := Cursor;
+  Other.SelectedPart := High(TCellPart);
+  Cursor.SelectedPart := Low(TCellPart);
+  Other.Y := Min(Cursor.Y + 15, NumRows - 1);
+  Invalidate;
+end;
+
+procedure TTrackerGrid.DoubleBlockLength;
+var
+  Selection: TSelection;
+  X, Y, DestY, SelHeight: Integer;
+begin
+  BeginUndoAction;
+  NormalizeCursors;
+
+  Selection := GetSelection;
+  SelHeight := Other.Y - Cursor.Y + 1;
+
+  // Write back with each row duplicated
+  for Y := 0 to High(Selection) do begin
+    for X := 0 to High(Selection[Y]) do begin
+      // First copy
+      DestY := Cursor.Y + (Y * 2);
+      if InRange(DestY, 0, NumRows - 1) and InRange(Cursor.X + X, Low(Patterns), High(Patterns)) then begin
+        if cpNote in Selection[Y][X].Parts then
+          Patterns[Cursor.X + X]^[DestY].Note := Selection[Y][X].Cell.Note;
+        if cpInstrument in Selection[Y][X].Parts then
+          Patterns[Cursor.X + X]^[DestY].Instrument := Selection[Y][X].Cell.Instrument;
+        if cpEffectCode in Selection[Y][X].Parts then
+          Patterns[Cursor.X + X]^[DestY].EffectCode := Selection[Y][X].Cell.EffectCode;
+        if cpEffectParams in Selection[Y][X].Parts then
+          Patterns[Cursor.X + X]^[DestY].EffectParams := Selection[Y][X].Cell.EffectParams;
+      end;
+      // Second copy (duplicate)
+      DestY := Cursor.Y + (Y * 2) + 1;
+      if InRange(DestY, 0, NumRows - 1) and InRange(Cursor.X + X, Low(Patterns), High(Patterns)) then begin
+        if cpNote in Selection[Y][X].Parts then
+          Patterns[Cursor.X + X]^[DestY].Note := Selection[Y][X].Cell.Note;
+        if cpInstrument in Selection[Y][X].Parts then
+          Patterns[Cursor.X + X]^[DestY].Instrument := Selection[Y][X].Cell.Instrument;
+        if cpEffectCode in Selection[Y][X].Parts then
+          Patterns[Cursor.X + X]^[DestY].EffectCode := Selection[Y][X].Cell.EffectCode;
+        if cpEffectParams in Selection[Y][X].Parts then
+          Patterns[Cursor.X + X]^[DestY].EffectParams := Selection[Y][X].Cell.EffectParams;
+      end;
+    end;
+  end;
+
+  Other.Y := Min(Cursor.Y + (SelHeight * 2) - 1, NumRows - 1);
+
+  Invalidate;
+  EndUndoAction;
+end;
+
+procedure TTrackerGrid.HalveBlockLength;
+var
+  Selection: TSelection;
+  X, Y, DestY, SelHeight: Integer;
+  Pos: TSelectionPos;
+begin
+  BeginUndoAction;
+  NormalizeCursors;
+
+  Selection := GetSelection;
+  SelHeight := Other.Y - Cursor.Y + 1;
+
+  // Write back keeping only even rows
+  for Y := 0 to High(Selection) do begin
+    DestY := Cursor.Y + (Y div 2);
+    if (Y mod 2 = 0) then begin
+      for X := 0 to High(Selection[Y]) do begin
+        if InRange(DestY, 0, NumRows - 1) and InRange(Cursor.X + X, Low(Patterns), High(Patterns)) then begin
+          if cpNote in Selection[Y][X].Parts then
+            Patterns[Cursor.X + X]^[DestY].Note := Selection[Y][X].Cell.Note;
+          if cpInstrument in Selection[Y][X].Parts then
+            Patterns[Cursor.X + X]^[DestY].Instrument := Selection[Y][X].Cell.Instrument;
+          if cpEffectCode in Selection[Y][X].Parts then
+            Patterns[Cursor.X + X]^[DestY].EffectCode := Selection[Y][X].Cell.EffectCode;
+          if cpEffectParams in Selection[Y][X].Parts then
+            Patterns[Cursor.X + X]^[DestY].EffectParams := Selection[Y][X].Cell.EffectParams;
+        end;
+      end;
+    end;
+  end;
+
+  // Clear the now-unused lower half
+  for Y := ((SelHeight + 1) div 2) to SelHeight - 1 do begin
+    DestY := Cursor.Y + Y;
+    if InRange(DestY, 0, NumRows - 1) then begin
+      Pos := Cursor;
+      Pos.Y := DestY;
+      while Pos <= Other do begin
+        ClearAt(Pos);
+        IncSelectionPos(Pos);
+      end;
+    end;
+  end;
+
+  Other.Y := Cursor.Y + ((SelHeight + 1) div 2) - 1;
+
+  Invalidate;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.LoadPattern(Idx: Integer; PatternNumber: Integer);

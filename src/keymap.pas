@@ -22,40 +22,34 @@ procedure LoadDefaultKeybindings;
 begin
   Keybindings.Clear;
 
-  Keybindings.Add(VK_Q, C_3);
-  Keybindings.Add(VK_W, CS3);
-  Keybindings.Add(VK_E, D_3);
-  Keybindings.Add(VK_R, DS3);
-  Keybindings.Add(VK_T, E_3);
-  Keybindings.Add(VK_Y, F_3);
-  Keybindings.Add(VK_U, FS3);
-  Keybindings.Add(VK_I, G_3);
-  Keybindings.Add(VK_O, GS3);
-  Keybindings.Add(VK_P, A_3);
-  Keybindings.Add(VK_OEM_4, AS3);
-  Keybindings.Add(VK_OEM_6, B_3);
-  Keybindings.Add(VK_OEM_5, B_4);
-  Keybindings.Add(VK_A, C_4);
-  Keybindings.Add(VK_S, CS4);
-  Keybindings.Add(VK_D, D_4);
-  Keybindings.Add(VK_F, DS4);
-  Keybindings.Add(VK_G, E_4);
-  Keybindings.Add(VK_H, F_4);
-  Keybindings.Add(VK_J, FS4);
-  Keybindings.Add(VK_K, G_4);
-  Keybindings.Add(VK_L, GS4);
-  Keybindings.Add(VK_OEM_1, A_4);
-  Keybindings.Add(VK_OEM_7, AS4);
-  Keybindings.Add(VK_Z, C_5);
-  Keybindings.Add(VK_X, CS5);
-  Keybindings.Add(VK_C, D_5);
-  Keybindings.Add(VK_V, DS5);
-  Keybindings.Add(VK_B, E_5);
-  Keybindings.Add(VK_N, F_5);
-  Keybindings.Add(VK_M, FS5);
-  Keybindings.Add(VK_OEM_COMMA, G_5);
-  Keybindings.Add(VK_OEM_PERIOD, GS5);
-  Keybindings.Add(VK_OEM_2, A_5);
+  // IT piano layout - lower octave (Z row = white keys, S/D/G/H/J = black keys)
+  Keybindings.Add(VK_Z, C_3);
+  Keybindings.Add(VK_S, CS3);
+  Keybindings.Add(VK_X, D_3);
+  Keybindings.Add(VK_D, DS3);
+  Keybindings.Add(VK_C, E_3);
+  Keybindings.Add(VK_V, F_3);
+  Keybindings.Add(VK_G, FS3);
+  Keybindings.Add(VK_B, G_3);
+  Keybindings.Add(VK_H, GS3);
+  Keybindings.Add(VK_N, A_3);
+  Keybindings.Add(VK_J, AS3);
+  Keybindings.Add(VK_M, B_3);
+
+  // IT piano layout - upper octave (Q row = white keys, 2/3/5/6/7 = black keys)
+  Keybindings.Add(VK_Q, C_4);
+  Keybindings.Add(VK_2, CS4);
+  Keybindings.Add(VK_W, D_4);
+  Keybindings.Add(VK_3, DS4);
+  Keybindings.Add(VK_E, E_4);
+  Keybindings.Add(VK_R, F_4);
+  Keybindings.Add(VK_5, FS4);
+  Keybindings.Add(VK_T, G_4);
+  Keybindings.Add(VK_6, GS4);
+  Keybindings.Add(VK_Y, A_4);
+  Keybindings.Add(VK_7, AS4);
+  Keybindings.Add(VK_U, B_4);
+  Keybindings.Add(VK_I, C_5);
 end;
 
 procedure LoadCustomKeybindings(Grid: TStringGrid);
