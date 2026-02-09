@@ -103,9 +103,12 @@ begin
     $1: Result := 'Slide up by '+P+' units';
     $2: Result := 'Slide down by '+P+' units';
     $3: Result := 'Tone portamento by '+P+' units';
+    $4: Result := 'Every '+IntToStr(Params.Param1 + 1)+' ticks, vibrato by +'+IntToStr(Params.Param2)+' units';
     $5: Result := 'Set Left speaker vol to '+IntToStr(Params.Param1)+', Right speaker vol to '+IntToStr(Params.Param2);
     $6: Result := 'Call routine #'+P;
     $7: Result := 'Delay note by '+P+' ticks';
+    $8: Result := 'Set panning to $'+IntToHex(Params.Value, 2);
+    $9: Result := 'Change timbre to $'+IntToHex(Params.Value, 2);
     $A: Result := 'Increase volume by '+IntToStr(Params.Param1)+' units, decrease volume by '+IntToStr(Params.Param2)+' units';
     $B: Result := 'Jump to order '+P;
     $C: begin

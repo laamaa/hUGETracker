@@ -125,6 +125,7 @@ type
     OnCursorOutOfBounds: procedure of object;
     OnOrderChange: procedure(Delta: Integer) of object;
     OnInstrumentChange: procedure(Delta: Integer) of object;
+    OnCursorChange: procedure of object;
 
     property HighlightedRow: Integer read FHighlightedRow write SetHighlightedRow;
     property SelectionGridRect: TRect read GetSelectionGridRect write SetSelectionGridRect;
@@ -135,6 +136,7 @@ type
     procedure SetAt(SelectionPos: TSelectionPos; Value: Integer);
     procedure IncrementAt(SelectionPos: TSelectionPos; Value: Integer);
     procedure ClearAt(SelectionPos: TSelectionPos);
+    function GetCellAt(SelectionPos: TSelectionPos): TCell;
 
     procedure InsertRowInPatternAtCursor(Pattern: Integer);
     procedure InsertRowInAllAtCursor;
@@ -528,6 +530,8 @@ begin
 
   NormalizeCursors;
   Invalidate;
+
+  if Assigned(OnCursorChange) then OnCursorChange;
 end;
 
 procedure TTrackerGrid.DblClick;
@@ -620,6 +624,8 @@ begin
 
   ClampCursors;
   Invalidate;
+
+  if Assigned(OnCursorChange) then OnCursorChange;
 end;
 
 procedure TTrackerGrid.KeyUp(var Key: Word; Shift: TShiftState);
@@ -1107,14 +1113,22 @@ begin
 end;
 
 procedure TTrackerGrid.InputEffectCode(Key: Word);
+var
+  Temp: Integer;
 begin
   BeginUndoAction;
   with Patterns[Cursor.X]^[Cursor.Y] do
     if Key = VK_DELETE then begin
       EffectCode := 0;
       EffectParams.Value := 0;
+      Inc(Cursor.Y, Step);
+      ClampCursors;
     end
-    else KeycodeToHexNumber(Key, EffectCode);
+    else if KeycodeToHexNumber(Key, Temp) then begin
+      EffectCode := Temp;
+      Inc(Cursor.Y, Step);
+      ClampCursors;
+    end;
 
   Invalidate;
   EndUndoAction;
@@ -1129,9 +1143,14 @@ begin
     if Key = VK_DELETE then begin
       EffectCode := 0;
       EffectParams.Value := 0;
+      Inc(Cursor.Y, Step);
+      ClampCursors;
     end
-    else if KeycodeToHexNumber(Key, Temp) then
+    else if KeycodeToHexNumber(Key, Temp) then begin
       EffectParams.Value := ((EffectParams.Value mod $10) * $10) + Temp;
+      Inc(Cursor.Y, Step);
+      ClampCursors;
+    end;
 
   Invalidate;
   EndUndoAction;
@@ -1482,9 +1501,14 @@ begin
       cpNote: begin Note := NO_NOTE; Instrument := 0; end;
       cpInstrument: Instrument := 0;
       cpVolume: Volume := 0;
-      cpEffectCode: EffectCode := 0;
+      cpEffectCode: begin EffectCode := 0; EffectParams.Value := 0; end;
       cpEffectParams: EffectParams.Value := 0;
     end;
+end;
+
+function TTrackerGrid.GetCellAt(SelectionPos: TSelectionPos): TCell;
+begin
+  Result := Patterns[SelectionPos.X]^[SelectionPos.Y];
 end;
 
 procedure TTrackerGrid.InsertRowInPatternAtCursor(Pattern: Integer);

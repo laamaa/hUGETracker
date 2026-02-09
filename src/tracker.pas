@@ -587,6 +587,7 @@ type
     procedure OnTrackerGridCursorOutOfBounds;
     procedure OnTrackerGridOrderChange(Delta: Integer);
     procedure OnTrackerGridInstrumentChange(Delta: Integer);
+    procedure OnTrackerGridCursorChange;
   end;
 
 var
@@ -1004,6 +1005,26 @@ begin
   TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
 end;
 
+procedure TfrmTracker.OnTrackerGridCursorChange;
+var
+  Grid: TTrackerGrid;
+  Cell: TCell;
+begin
+  Grid := TrackerGrid;
+  if not Assigned(Grid) then Exit;
+
+  if PageControl1.TabIndex = 2 then // Instruments tab — use TableGrid
+    Grid := TableGrid;
+
+  if Grid.Cursor.SelectedPart in [cpEffectCode, cpEffectParams] then begin
+    Cell := Grid.GetCellAt(Grid.Cursor);
+    StatusBar1.Panels[0].Text := EffectCodeToStr(Cell.EffectCode, Cell.EffectParams)
+      + ' - ' + EffectToExplanation(Cell.EffectCode, Cell.EffectParams);
+  end
+  else
+    StatusBar1.Panels[0].Text := '';
+end;
+
 procedure TfrmTracker.LoadWave(Wave: Integer);
 begin
   CurrentWave := @Song.Waves[Wave];
@@ -1249,6 +1270,7 @@ begin
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
   TrackerGrid.OnOrderChange:=@OnTrackerGridOrderChange;
   TrackerGrid.OnInstrumentChange:=@OnTrackerGridInstrumentChange;
+  TrackerGrid.OnCursorChange:=@OnTrackerGridCursorChange;
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;
   TrackerGrid.PopupMenu := TrackerGridPopup;
@@ -1259,6 +1281,7 @@ begin
   if Assigned(TableGrid) then TableGrid.Free;
   TableGrid := TTableGrid.Create(Self, ScrollBox2, SubpatternMap, 1, 32);
 
+  TableGrid.OnCursorChange:=@OnTrackerGridCursorChange;
   TableGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   TableGrid.Left := RowNumberStringGrid1.Left - TableGrid.Width;
   TableGrid.PopupMenu := TrackerGridPopup;
