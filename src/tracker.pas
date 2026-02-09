@@ -563,6 +563,7 @@ type
     procedure OnFD(var Msg: TLMessage); message LM_FD;
     procedure OnSampleSongMenuItemClicked(Sender: TObject);
 
+    function ActiveGrid: TTrackerGrid;
     procedure CreateKeymap;
     procedure RecreateTrackerGrid;
     procedure RecreateRowNumbers;
@@ -1257,6 +1258,14 @@ begin
       StringGrid.Free;
     end;
   end;
+end;
+
+function TfrmTracker.ActiveGrid: TTrackerGrid;
+begin
+  if ActiveControl is TTrackerGrid then
+    Result := ActiveControl as TTrackerGrid
+  else
+    Result := TrackerGrid;
 end;
 
 procedure TfrmTracker.RecreateTrackerGrid;
@@ -1975,122 +1984,122 @@ end;
 
 procedure TfrmTracker.InsertRowActionExecute(Sender: TObject);
 begin
-  TrackerGrid.InsertRowInPatternAtCursor(TrackerGrid.Cursor.X);
+  ActiveGrid.InsertRowInPatternAtCursor(ActiveGrid.Cursor.X);
 end;
 
 procedure TfrmTracker.InsertRowActionUpdate(Sender: TObject);
 begin
-  (Sender as TAction).Enabled := ActiveControl = TrackerGrid;
+  (Sender as TAction).Enabled := ActiveControl is TTrackerGrid;
 end;
 
 procedure TfrmTracker.InsertRowForAllActionExecute(Sender: TObject);
 begin
-  TrackerGrid.InsertRowInAllAtCursor;
+  ActiveGrid.InsertRowInAllAtCursor;
 end;
 
 procedure TfrmTracker.InsertRowForAllActionUpdate(Sender: TObject);
 begin
-  (Sender as TAction).Enabled := ActiveControl = TrackerGrid;
+  (Sender as TAction).Enabled := ActiveControl is TTrackerGrid;
 end;
 
 procedure TfrmTracker.TrackerGridActionUpdate(Sender: TObject);
 begin
-  (Sender as TAction).Enabled := ActiveControl = TrackerGrid;
+  (Sender as TAction).Enabled := ActiveControl is TTrackerGrid;
 end;
 
 procedure TfrmTracker.UndoActionExecute(Sender: TObject);
 begin
-  TrackerGrid.DoUndo;
+  ActiveGrid.DoUndo;
 end;
 
 procedure TfrmTracker.RedoActionExecute(Sender: TObject);
 begin
-  TrackerGrid.DoRedo;
+  ActiveGrid.DoRedo;
 end;
 
 procedure TfrmTracker.MarkBlockBeginActionExecute(Sender: TObject);
 begin
-  TrackerGrid.MarkBlockBegin;
+  ActiveGrid.MarkBlockBegin;
 end;
 
 procedure TfrmTracker.MarkBlockEndActionExecute(Sender: TObject);
 begin
-  TrackerGrid.MarkBlockEnd;
+  ActiveGrid.MarkBlockEnd;
 end;
 
 procedure TfrmTracker.SelectColumnActionExecute(Sender: TObject);
 begin
-  TrackerGrid.SelectColumn;
+  ActiveGrid.SelectColumn;
 end;
 
 procedure TfrmTracker.DeselectActionExecute(Sender: TObject);
 begin
-  TrackerGrid.Deselect;
+  ActiveGrid.Deselect;
 end;
 
 procedure TfrmTracker.QuickSelectActionExecute(Sender: TObject);
 begin
-  TrackerGrid.QuickSelect;
+  ActiveGrid.QuickSelect;
 end;
 
 procedure TfrmTracker.TransposeUpActionExecute(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(1);
+  ActiveGrid.TransposeSelection(1);
 end;
 
 procedure TfrmTracker.TransposeDownActionExecute(Sender: TObject);
 begin
-  TrackerGrid.TransposeSelection(-1);
+  ActiveGrid.TransposeSelection(-1);
 end;
 
 procedure TfrmTracker.SetInstrumentActionExecute(Sender: TObject);
 begin
-  TrackerGrid.ChangeSelectionInstrument;
+  ActiveGrid.ChangeSelectionInstrument;
 end;
 
 procedure TfrmTracker.CutBlockActionExecute(Sender: TObject);
 begin
-  PostMessage(TrackerGrid.Handle, LM_CUT, 0, 0);
+  PostMessage(ActiveGrid.Handle, LM_CUT, 0, 0);
 end;
 
 procedure TfrmTracker.CopyBlockActionExecute(Sender: TObject);
 begin
-  PostMessage(TrackerGrid.Handle, LM_COPY, 0, 0);
+  PostMessage(ActiveGrid.Handle, LM_COPY, 0, 0);
 end;
 
 procedure TfrmTracker.PasteBlockActionExecute(Sender: TObject);
 begin
-  PostMessage(TrackerGrid.Handle, LM_PASTE, 0, 0);
+  PostMessage(ActiveGrid.Handle, LM_PASTE, 0, 0);
 end;
 
 procedure TfrmTracker.MixPasteActionExecute(Sender: TObject);
 begin
-  TrackerGrid.DoMixPaste;
+  ActiveGrid.DoMixPaste;
 end;
 
 procedure TfrmTracker.OverwritePasteActionExecute(Sender: TObject);
 begin
-  PostMessage(TrackerGrid.Handle, LM_PASTE, 0, 0);
+  PostMessage(ActiveGrid.Handle, LM_PASTE, 0, 0);
 end;
 
 procedure TfrmTracker.InterpolateActionExecute(Sender: TObject);
 begin
-  TrackerGrid.InterpolateSelection;
+  ActiveGrid.InterpolateSelection;
 end;
 
 procedure TfrmTracker.DoubleBlockActionExecute(Sender: TObject);
 begin
-  TrackerGrid.DoubleBlockLength;
+  ActiveGrid.DoubleBlockLength;
 end;
 
 procedure TfrmTracker.HalveBlockActionExecute(Sender: TObject);
 begin
-  TrackerGrid.HalveBlockLength;
+  ActiveGrid.HalveBlockLength;
 end;
 
 procedure TfrmTracker.RepeatPasteActionExecute(Sender: TObject);
 begin
-  TrackerGrid.DoRepeatPaste;
+  ActiveGrid.DoRepeatPaste;
 end;
 
 procedure TfrmTracker.MenuItem37Click(Sender: TObject);
@@ -2385,22 +2394,22 @@ end;
 
 procedure TfrmTracker.DeleteRowActionExecute(Sender: TObject);
 begin
-  TrackerGrid.DeleteRowInPatternAtCursor(TrackerGrid.Cursor.X);
+  ActiveGrid.DeleteRowInPatternAtCursor(ActiveGrid.Cursor.X);
 end;
 
 procedure TfrmTracker.DeleteRowActionUpdate(Sender: TObject);
 begin
-  (Sender as TAction).Enabled := ActiveControl = TrackerGrid;
+  (Sender as TAction).Enabled := ActiveControl is TTrackerGrid;
 end;
 
 procedure TfrmTracker.DeleteRowForAllActionExecute(Sender: TObject);
 begin
-  TrackerGrid.DeleteRowInAllAtCursor;
+  ActiveGrid.DeleteRowInAllAtCursor;
 end;
 
 procedure TfrmTracker.DeleteRowForAllActionUpdate(Sender: TObject);
 begin
-  (Sender as TAction).Enabled := ActiveControl = TrackerGrid;
+  (Sender as TAction).Enabled := ActiveControl is TTrackerGrid;
 end;
 
 procedure TfrmTracker.Duty1VisualizerClick(Sender: TObject);
@@ -2528,7 +2537,7 @@ end;
 
 procedure TfrmTracker.MenuItem11Click(Sender: TObject);
 begin
-  TrackerGrid.DoUndo;
+  ActiveGrid.DoUndo;
 end;
 
 procedure TfrmTracker.MenuItem12Click(Sender: TObject);
@@ -2723,7 +2732,7 @@ end;
 
 procedure TfrmTracker.MenuItem8Click(Sender: TObject);
 begin
-  TrackerGrid.DoRedo;
+  ActiveGrid.DoRedo;
 end;
 
 procedure TfrmTracker.NoiseVisualizerPaint(Sender: TObject);
