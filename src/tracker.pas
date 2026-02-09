@@ -62,6 +62,8 @@ type
     DoubleBlockAction: TAction;
     HalveBlockAction: TAction;
     RepeatPasteAction: TAction;
+    DuplicateOrderRowAction: TAction;
+    ReplicateOrderRowAction: TAction;
     FileSave1: TAction;
     MenuItem26: TMenuItem;
     MenuItem42: TMenuItem;
@@ -343,6 +345,7 @@ type
     procedure DeleteRowActionUpdate(Sender: TObject);
     procedure DeleteRowForAllActionExecute(Sender: TObject);
     procedure DeleteRowForAllActionUpdate(Sender: TObject);
+    procedure DuplicateOrderRowActionExecute(Sender: TObject);
     procedure Duty1VisualizerClick(Sender: TObject);
     procedure ExportCMenuItemClick(Sender: TObject);
     procedure FileSaveAs1BeforeExecute(Sender: TObject);
@@ -411,7 +414,7 @@ type
     procedure LengthSpinnerChange(Sender: TObject);
     procedure MenuItem11Click(Sender: TObject);
     procedure MenuItem12Click(Sender: TObject);
-    procedure MenuItem14Click(Sender: TObject);
+
     procedure MenuItem17Click(Sender: TObject);
     procedure MenuItem18Click(Sender: TObject);
     procedure MenuItem19Click(Sender: TObject);
@@ -492,6 +495,7 @@ type
     procedure TrackerGridActionUpdate(Sender: TObject);
     procedure UndoActionExecute(Sender: TObject);
     procedure RedoActionExecute(Sender: TObject);
+    procedure ReplicateOrderRowActionExecute(Sender: TObject);
     procedure MarkBlockBeginActionExecute(Sender: TObject);
     procedure MarkBlockEndActionExecute(Sender: TObject);
     procedure SelectColumnActionExecute(Sender: TObject);
@@ -978,17 +982,11 @@ end;
 
 procedure TfrmTracker.OnTrackerGridCursorOutOfBounds;
 begin
-  if  (TrackerGrid.Cursor.Y > High(TPattern))
-  and (OrderEditStringGrid.Row < OrderEditStringGrid.RowCount-1) then begin
-    OrderEditStringGrid.Row := OrderEditStringGrid.Row+1;
-    TrackerGrid.Cursor.Y := Low(TPattern);
-  end;
-
-  if  (TrackerGrid.Cursor.Y < Low(TPattern))
-  and (OrderEditStringGrid.Row > 1) then begin
-    OrderEditStringGrid.Row := OrderEditStringGrid.Row-1;
+  if TrackerGrid.Cursor.Y > High(TPattern) then
     TrackerGrid.Cursor.Y := High(TPattern);
-  end;
+
+  if TrackerGrid.Cursor.Y < Low(TPattern) then
+    TrackerGrid.Cursor.Y := Low(TPattern);
 end;
 
 procedure TfrmTracker.OnTrackerGridOrderChange(Delta: Integer);
@@ -1266,6 +1264,9 @@ begin
   TableGrid.PopupMenu := TrackerGridPopup;
   RowNumberStringGrid1.DefaultRowHeight := TrackerGrid.RowHeight;
   RowNumberStringGrid1.DisabledFontColor := RowNumberStringGrid1.Font.Color;
+
+  TrackerGrid.Step := StepSpinEdit.Value;
+  TableGrid.Step := StepSpinEdit.Value;
 
   SubpatternGroupBox.Width := RowNumberStringGrid1.Width + TableGrid.Width + 10;
 
@@ -1768,6 +1769,7 @@ begin
     LoadedFileName := FileSaveAs1.Dialog.FileName;
     UpdateWindowTitle;
     RevertMenuItem.Enabled := (LoadedFileName <> '');
+    StatusBar1.Panels[0].Text := 'Saved ' + ExtractFileName(FileSaveAs1.Dialog.FileName);
   finally
     stream.Free;
   end;
@@ -2512,11 +2514,7 @@ begin
     FileOpen1.Execute;
 end;
 
-procedure TfrmTracker.MenuItem14Click(Sender: TObject);
-begin
-  if CheckUnsavedChanges then
-    Application.Terminate;
-end;
+
 
 procedure TfrmTracker.MenuItem17Click(Sender: TObject);
 var
@@ -2594,6 +2592,16 @@ begin
   end;
 
   ReloadPatterns;
+end;
+
+procedure TfrmTracker.DuplicateOrderRowActionExecute(Sender: TObject);
+begin
+  MenuItem21Click(Sender);
+end;
+
+procedure TfrmTracker.ReplicateOrderRowActionExecute(Sender: TObject);
+begin
+  MenuItem22Click(Sender);
 end;
 
 procedure TfrmTracker.OptionsMenuItemClick(Sender: TObject);

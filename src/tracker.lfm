@@ -1990,6 +1990,7 @@ object frmTracker: TfrmTracker
       Top = 0
       Width = 67
       MaxValue = 63
+      Value = 1
       OnChange = StepSpinEditChange
       ParentFont = False
       TabOrder = 2
@@ -2130,9 +2131,7 @@ object frmTracker: TfrmTracker
         Caption = '-'
       end
       object MenuItem14: TMenuItem
-        Caption = 'E&xit'
-        Hint = 'Exit'
-        OnClick = MenuItem14Click
+        Action = FileExit1
       end
     end
     object MenuItem2: TMenuItem
@@ -2237,6 +2236,7 @@ object frmTracker: TfrmTracker
       Category = 'File'
       Caption = 'E&xit'
       Hint = 'Exit'
+      ShortCut = 16465
     end
     object HelpLookupManual: TAction
       Category = 'Help'
@@ -2787,12 +2787,12 @@ object frmTracker: TfrmTracker
     end
     object TrackerPopupTransposeSemiUp: TMenuItem
       Caption = 'Transpose +1 semitone'
-      ShortCut = 16465
+      ShortCut = 32849
       OnClick = TrackerPopupTransposeSemiUpClick
     end
     object TrackerPopupTransposeSemiDown: TMenuItem
       Caption = 'Transpose -1 semitone'
-      ShortCut = 16449
+      ShortCut = 32833
       OnClick = TrackerPopupTransposeSemiDownClick
     end
     object TrackerPopupTransposeOctaveUp: TMenuItem
@@ -3390,6 +3390,22 @@ object frmTracker: TfrmTracker
         'Meta+R'
       )
       ShortCut = 32850
+    end
+    object DuplicateOrderRowAction: TAction
+      Caption = 'Duplicate Order Row'
+      OnExecute = DuplicateOrderRowActionExecute
+      SecondaryShortCuts.Strings = (
+        'Meta+Ctrl+D'
+      )
+      ShortCut = 49220
+    end
+    object ReplicateOrderRowAction: TAction
+      Caption = 'Replicate Order Row'
+      OnExecute = ReplicateOrderRowActionExecute
+      SecondaryShortCuts.Strings = (
+        'Meta+Ctrl+R'
+      )
+      ShortCut = 49234
     end
   end
   object GBDKCSaveDialog: TSaveDialog

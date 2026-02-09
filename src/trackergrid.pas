@@ -354,7 +354,7 @@ begin
 
   SelectedInstrument := 0;
   SelectedOctave := 0;
-  Step := 0;
+  Step := 1;
 end;
 
 destructor TTrackerGrid.Destroy;
@@ -568,14 +568,14 @@ begin
   end;
 
   case Key of
-    VK_UP: Dec(Cursor.Y);
-    VK_DOWN: Inc(Cursor.Y);
-    VK_PRIOR: Dec(Cursor.Y, 16);
-    VK_NEXT: Inc(Cursor.Y, 16);
-    VK_LEFT: DecSelectionPos(Cursor);
-    VK_RIGHT: IncSelectionPos(Cursor);
-    VK_HOME: Cursor.Y := 0;
-    VK_END: Cursor.Y := NumRows-1;
+    VK_UP: begin Dec(Cursor.Y); Key := 0; end;
+    VK_DOWN: begin Inc(Cursor.Y); Key := 0; end;
+    VK_PRIOR: begin Dec(Cursor.Y, 16); Key := 0; end;
+    VK_NEXT: begin Inc(Cursor.Y, 16); Key := 0; end;
+    VK_LEFT: begin DecSelectionPos(Cursor); Key := 0; end;
+    VK_RIGHT: begin IncSelectionPos(Cursor); Key := 0; end;
+    VK_HOME: begin Cursor.Y := 0; Key := 0; end;
+    VK_END: begin Cursor.Y := NumRows-1; Key := 0; end;
     VK_TAB: begin
       if ssShift in Shift then begin
         Dec(Cursor.X);
@@ -1479,7 +1479,7 @@ procedure TTrackerGrid.ClearAt(SelectionPos: TSelectionPos);
 begin
   with Patterns[SelectionPos.X]^[SelectionPos.Y] do
     case SelectionPos.SelectedPart of
-      cpNote: Note := NO_NOTE;
+      cpNote: begin Note := NO_NOTE; Instrument := 0; end;
       cpInstrument: Instrument := 0;
       cpVolume: Volume := 0;
       cpEffectCode: EffectCode := 0;
