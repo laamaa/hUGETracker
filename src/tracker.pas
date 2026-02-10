@@ -590,6 +590,7 @@ type
     procedure OnTrackerGridCursorOutOfBounds;
     procedure OnTrackerGridOrderChange(Delta: Integer);
     procedure OnTrackerGridInstrumentChange(Delta: Integer);
+    procedure OnTrackerGridInstrumentSelect(Instrument: Integer);
     procedure OnTrackerGridCursorChange;
   end;
 
@@ -1008,6 +1009,16 @@ begin
   TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
 end;
 
+procedure TfrmTracker.OnTrackerGridInstrumentSelect(Instrument: Integer);
+begin
+  case TrackerGrid.Cursor.X of
+    0..1: InstrumentComboBox.ItemIndex := UnmodInst(itSquare, Instrument);
+    2:    InstrumentComboBox.ItemIndex := UnmodInst(itWave, Instrument);
+    3:    InstrumentComboBox.ItemIndex := UnmodInst(itNoise, Instrument);
+  end;
+  TrackerGrid.SelectedInstrument := ModInst(InstrumentComboBox.ItemIndex);
+end;
+
 procedure TfrmTracker.OnTrackerGridCursorChange;
 var
   Grid: TTrackerGrid;
@@ -1281,6 +1292,7 @@ begin
   TrackerGrid.OnCursorOutOfBounds:=@OnTrackerGridCursorOutOfBounds;
   TrackerGrid.OnOrderChange:=@OnTrackerGridOrderChange;
   TrackerGrid.OnInstrumentChange:=@OnTrackerGridInstrumentChange;
+  TrackerGrid.OnInstrumentSelect:=@OnTrackerGridInstrumentSelect;
   TrackerGrid.OnCursorChange:=@OnTrackerGridCursorChange;
   TrackerGrid.FontSize := TrackerSettings.PatternEditorFontSize;
   TrackerGrid.Left := RowNumberStringGrid.Left + RowNumberStringGrid.Width;

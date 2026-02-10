@@ -126,6 +126,7 @@ type
     OnCursorOutOfBounds: procedure of object;
     OnOrderChange: procedure(Delta: Integer) of object;
     OnInstrumentChange: procedure(Delta: Integer) of object;
+    OnInstrumentSelect: procedure(Instrument: Integer) of object;
     OnCursorChange: procedure of object;
 
     property HighlightedRow: Integer read FHighlightedRow write SetHighlightedRow;
@@ -1097,12 +1098,17 @@ end;
 procedure TTrackerGrid.InputInstrument(Key: Word);
 var
   Temp: Nibble;
+  NewInst: Integer;
 begin
   BeginUndoAction;
   with Patterns[Cursor.X]^[Cursor.Y] do begin
     if Key = VK_DELETE then Instrument := 0
-    else if KeycodeToHexNumber(Key, Temp) and InRange(Temp, 0, 9) then
-      Instrument := ((Instrument mod 10) * 10) + Temp;
+    else if KeycodeToHexNumber(Key, Temp) and InRange(Temp, 0, 9) then begin
+      NewInst := ((Instrument mod 10) * 10) + Temp;
+      Instrument := NewInst;
+      if (NewInst > 0) and Assigned(OnInstrumentSelect) then
+        OnInstrumentSelect(NewInst);
+    end;
   end;
 
   Invalidate;
