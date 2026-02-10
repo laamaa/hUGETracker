@@ -3139,41 +3139,66 @@ object frmTracker: TfrmTracker
     object GotoGeneralAction: TAction
       Caption = 'GotoGeneralAction'
       OnExecute = GotoGeneralActionExecute
-      ShortCut = 16433
+      ShortCut = 112
     end
     object GotoPatternsAction: TAction
       Caption = 'GotoPatternsAction'
       OnExecute = GotoPatternsActionExecute
-      SecondaryShortCuts.Strings = (
-        'F2'
-      )
-      ShortCut = 16434
+      ShortCut = 113
     end
     object GotoInstrumentsAction: TAction
       Caption = 'GotoInstrumentsAction'
       OnExecute = GotoInstrumentsActionExecute
-      SecondaryShortCuts.Strings = (
-        'F3'
-      )
-      ShortCut = 16435
+      ShortCut = 114
     end
     object GotoWavesAction: TAction
       Caption = 'GotoWavesAction'
       OnExecute = GotoWavesActionExecute
-      SecondaryShortCuts.Strings = (
-        'F4'
-      )
-      ShortCut = 16436
+      ShortCut = 115
     end
     object GotoCommentsAction: TAction
       Caption = 'GotoCommentsAction'
       OnExecute = GotoCommentsActionExecute
-      ShortCut = 16437
     end
     object GotoRoutinesAction: TAction
       Caption = 'GotoRoutinesAction'
       OnExecute = GotoRoutinesActionExecute
+    end
+    object SetOctave0Action: TAction
+      Caption = 'SetOctave0Action'
+      OnExecute = SetOctaveActionExecute
+      ShortCut = 16433
+      Tag = 0
+    end
+    object SetOctave1Action: TAction
+      Caption = 'SetOctave1Action'
+      OnExecute = SetOctaveActionExecute
+      ShortCut = 16434
+      Tag = 1
+    end
+    object SetOctave2Action: TAction
+      Caption = 'SetOctave2Action'
+      OnExecute = SetOctaveActionExecute
+      ShortCut = 16435
+      Tag = 2
+    end
+    object SetOctave3Action: TAction
+      Caption = 'SetOctave3Action'
+      OnExecute = SetOctaveActionExecute
+      ShortCut = 16436
+      Tag = 3
+    end
+    object SetOctave4Action: TAction
+      Caption = 'SetOctave4Action'
+      OnExecute = SetOctaveActionExecute
+      ShortCut = 16437
+      Tag = 4
+    end
+    object SetOctave5Action: TAction
+      Caption = 'SetOctave5Action'
+      OnExecute = SetOctaveActionExecute
       ShortCut = 16438
+      Tag = 5
     end
     object IncrementCurrentInstrumentAction: TAction
       Caption = 'IncrementCurrentInstrumentAction'

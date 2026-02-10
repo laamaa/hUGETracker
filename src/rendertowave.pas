@@ -130,9 +130,52 @@ begin
   CancelButton.Enabled := Rendering and not CancelRequested;
 end;
 
+procedure WriteWavHeader(Stream: TStream; DataSize: LongWord);
+var
+  ChunkSize, FmtSize, SampleRate, ByteRate: LongWord;
+  AudioFormat, NumChannels, BlockAlign, BitsPerSample: Word;
+  ID: array[0..3] of AnsiChar;
+begin
+  AudioFormat := 3; // IEEE float
+  NumChannels := 2;
+  SampleRate := PlaybackFrequency;
+  BitsPerSample := 32;
+  BlockAlign := NumChannels * (BitsPerSample div 8);
+  ByteRate := SampleRate * LongWord(BlockAlign);
+  FmtSize := 16;
+  ChunkSize := 36 + DataSize;
+
+  ID := 'RIFF'; Stream.Write(ID, 4);
+  Stream.Write(ChunkSize, 4);
+  ID := 'WAVE'; Stream.Write(ID, 4);
+  ID := 'fmt '; Stream.Write(ID, 4);
+  Stream.Write(FmtSize, 4);
+  Stream.Write(AudioFormat, 2);
+  Stream.Write(NumChannels, 2);
+  Stream.Write(SampleRate, 4);
+  Stream.Write(ByteRate, 4);
+  Stream.Write(BlockAlign, 2);
+  Stream.Write(BitsPerSample, 2);
+  ID := 'data'; Stream.Write(ID, 4);
+  Stream.Write(DataSize, 4);
+end;
+
+procedure FixupWavHeader(Stream: TStream; DataSize: LongWord);
+var
+  ChunkSize: LongWord;
+begin
+  ChunkSize := 36 + DataSize;
+  Stream.Seek(4, soFromBeginning);
+  Stream.Write(ChunkSize, 4);
+  Stream.Seek(40, soFromBeginning);
+  Stream.Write(DataSize, 4);
+end;
+
 procedure TfrmRenderToWave.ExportWaveToFile(Filename: String);
 var
   Proc: TProcess;
+  WavStream: TFileStream;
+  DataSize: LongWord;
 begin
   z80_reset;
   ResetSound;
@@ -141,48 +184,72 @@ begin
   FCCallback := nil;
   load(ConcatPaths([CacheDir, 'render', 'preview.gb']));
 
-  Proc := TProcess.Create(nil);
-  Proc.Executable := 'ffmpeg';
-  with Proc.Parameters do begin
-    // HACK: to prevent ffmpeg from writing to stderr, we disable all output
-    // This is needed because ffmpeg blocks unless you read what it writes
-    Add('-nostats');
-    Add('-loglevel');
-    Add('0');
+  if ComboBox1.ItemIndex = 0 then begin
+    // WAV: write directly without ffmpeg
+    WavStream := TFileStream.Create(Filename, fmCreate);
+    try
+      WriteWavHeader(WavStream, 0);
+      BeginWritingSoundToStream(WavStream);
 
-    Add('-sample_rate');
-    Add(IntToStr(PlaybackFrequency));
-    Add('-y');
-    Add('-f');
-    Add('f32le');
-    Add('-channels');
-    Add('2');
-    Add('-i');
-    Add('-');
-    Add('-f');
-    Add(GetFFMPEGFormat);
-    Add(Filename);
-  end;
-  Proc.Options := [poUsePipes, poNoConsole];
-  Proc.Execute;
+      if PlayEntireSongRadioButton.Checked then
+        RenderEntireSong(PlayEntireSongSpinEdit.Value)
+      else if FromPositionRadioButton.Checked then
+        RenderFromPosition(FromPositionLowerSpinEdit.Value, FromPositionUpperSpinEdit.Value);
 
-  try
-    BeginWritingSoundToStream(Proc.Input);
+      if CancelRequested then Exit;
 
-    if PlayEntireSongRadioButton.Checked then
-      RenderEntireSong(PlayEntireSongSpinEdit.Value)
-    else if FromPositionRadioButton.Checked then
-      RenderFromPosition(FromPositionLowerSpinEdit.Value, FromPositionUpperSpinEdit.Value);
+    finally
+      EndWritingSoundToStream;
+      DataSize := WavStream.Position - 44;
+      FixupWavHeader(WavStream, DataSize);
+      WavStream.Free;
 
-    if CancelRequested then Exit;
+      Panel1.Caption := 'Ready';
+    end;
+  end
+  else begin
+    // MP3/FLAC: use ffmpeg
+    Proc := TProcess.Create(nil);
+    Proc.Executable := 'ffmpeg';
+    with Proc.Parameters do begin
+      Add('-nostats');
+      Add('-loglevel');
+      Add('0');
 
-  finally
-    EndWritingSoundToStream;
-    Proc.CloseInput;
-    Proc.WaitOnExit;
-    Proc.Free;
+      Add('-sample_rate');
+      Add(IntToStr(PlaybackFrequency));
+      Add('-y');
+      Add('-f');
+      Add('f32le');
+      Add('-channels');
+      Add('2');
+      Add('-i');
+      Add('-');
+      Add('-f');
+      Add(GetFFMPEGFormat);
+      Add(Filename);
+    end;
+    Proc.Options := [poUsePipes, poNoConsole];
+    Proc.Execute;
 
-    Panel1.Caption := 'Ready';
+    try
+      BeginWritingSoundToStream(Proc.Input);
+
+      if PlayEntireSongRadioButton.Checked then
+        RenderEntireSong(PlayEntireSongSpinEdit.Value)
+      else if FromPositionRadioButton.Checked then
+        RenderFromPosition(FromPositionLowerSpinEdit.Value, FromPositionUpperSpinEdit.Value);
+
+      if CancelRequested then Exit;
+
+    finally
+      EndWritingSoundToStream;
+      Proc.CloseInput;
+      Proc.WaitOnExit;
+      Proc.Free;
+
+      Panel1.Caption := 'Ready';
+    end;
   end;
 end;
 

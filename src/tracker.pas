@@ -95,6 +95,12 @@ type
     GotoWavesAction: TAction;
     GotoCommentsAction: TAction;
     GotoRoutinesAction: TAction;
+    SetOctave0Action: TAction;
+    SetOctave1Action: TAction;
+    SetOctave2Action: TAction;
+    SetOctave3Action: TAction;
+    SetOctave4Action: TAction;
+    SetOctave5Action: TAction;
     DeleteRowAction: TAction;
     DeleteRowForAllAction: TAction;
     InsertRowForAllAction: TAction;
@@ -506,6 +512,7 @@ type
     procedure TransposeUpActionExecute(Sender: TObject);
     procedure TransposeDownActionExecute(Sender: TObject);
     procedure SetInstrumentActionExecute(Sender: TObject);
+    procedure SetOctaveActionExecute(Sender: TObject);
     procedure CutBlockActionExecute(Sender: TObject);
     procedure CopyBlockActionExecute(Sender: TObject);
     procedure PasteBlockActionExecute(Sender: TObject);
@@ -1946,8 +1953,19 @@ begin
 end;
 
 procedure TfrmTracker.GotoInstrumentsActionExecute(Sender: TObject);
+var
+  Idx: Integer;
 begin
   PageControl1.TabIndex := 2;
+  Idx := InstrumentComboBox.ItemIndex;
+  if Idx >= 1 then begin
+    if Idx <= 15 then
+      LoadInstrument(itSquare, Idx)
+    else if Idx <= 30 then
+      LoadInstrument(itWave, Idx - 15)
+    else
+      LoadInstrument(itNoise, Idx - 30);
+  end;
 end;
 
 procedure TfrmTracker.GotoWavesActionExecute(Sender: TObject);
@@ -2459,6 +2477,13 @@ end;
 
 procedure TfrmTracker.OctaveSpinEditChange(Sender: TObject);
 begin
+  TrackerGrid.SelectedOctave := OctaveSpinEdit.Value;
+  TableGrid.SelectedOctave := OctaveSpinEdit.Value;
+end;
+
+procedure TfrmTracker.SetOctaveActionExecute(Sender: TObject);
+begin
+  OctaveSpinEdit.Value := (Sender as TAction).Tag;
   TrackerGrid.SelectedOctave := OctaveSpinEdit.Value;
   TableGrid.SelectedOctave := OctaveSpinEdit.Value;
 end;
