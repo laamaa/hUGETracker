@@ -75,7 +75,8 @@ type
     procedure InputInstrument(Key: Word);
     procedure InputVolume(Key: Word); virtual;
     procedure InputEffectCode(Key: Word);
-    procedure InputEffectParams(Key: Word);
+    procedure InputEffectParam1(Key: Word);
+    procedure InputEffectParam2(Key: Word);
 
     procedure RenderRow(Row: Integer);
     procedure RenderCell(const Cell: TCell); virtual;
@@ -612,7 +613,8 @@ begin
           cpInstrument:   InputInstrument(Key);
           cpVolume:       InputVolume(Key);
           cpEffectCode:   InputEffectCode(Key);
-          cpEffectParams: InputEffectParams(Key);
+          cpEffectParam1: InputEffectParam1(Key);
+          cpEffectParam2: InputEffectParam2(Key);
         end;
   end;
 
@@ -672,7 +674,7 @@ procedure TTrackerGrid.PerformPaste(Paste: TSelection; Where: TSelectionPos; Mix
       if (not Mix) or (Cell2.Cell.EffectCode <> 0) then
         Cell1.EffectCode := Cell2.Cell.EffectCode;
 
-    if cpEffectParams in Cell2.Parts then
+    if [cpEffectParam1, cpEffectParam2] * Cell2.Parts <> [] then
       if (not Mix) or (Cell2.Cell.EffectParams.Value <> 0) then
         Cell1.EffectParams.Value := Cell2.Cell.EffectParams.Value;
   end;
@@ -957,7 +959,7 @@ begin
         cpInstrument: IncrementAt(Pos, Instrument);
         cpVolume: IncrementAt(Pos, Volume);
         cpEffectCode: IncrementAt(Pos, EffectCode);
-        cpEffectParams: IncrementAt(Pos, EffectParam);
+        cpEffectParam1, cpEffectParam2: IncrementAt(Pos, EffectParam);
       end;
       IncSelectionPos(Pos);
     end;
@@ -982,9 +984,9 @@ begin
 
   if Cursor.Y = Other.Y then Exit;
 
-  if Cursor.SelectedPart = cpEffectCode then begin
-    Cursor.SelectedPart := cpEffectParams;
-    Other.SelectedPart := cpEffectParams;
+  if Cursor.SelectedPart in [cpEffectCode, cpEffectParam1] then begin
+    Cursor.SelectedPart := cpEffectParam2;
+    Other.SelectedPart := cpEffectParam2;
   end;
 
   StartCell := Patterns[Cursor.x]^[Cursor.Y];
@@ -997,7 +999,7 @@ begin
   while Pos.Y <= Other.Y do begin
     SetAt(Pos, Trunc(Lerp(S, E, ((Pos.Y - Cursor.Y) / Len))));
 
-    if Pos.SelectedPart = cpEffectParams then
+    if Pos.SelectedPart = cpEffectParam2 then
       Patterns[Pos.X]^[Pos.Y].EffectCode := StartCell.EffectCode;
 
     Inc(Pos.Y)
@@ -1134,7 +1136,7 @@ begin
   EndUndoAction;
 end;
 
-procedure TTrackerGrid.InputEffectParams(Key: Word);
+procedure TTrackerGrid.InputEffectParam1(Key: Word);
 var
   Temp: Nibble;
 begin
@@ -1147,7 +1149,29 @@ begin
       ClampCursors;
     end
     else if KeycodeToHexNumber(Key, Temp) then begin
-      EffectParams.Value := ((EffectParams.Value mod $10) * $10) + Temp;
+      EffectParams.Param1 := Temp;
+      Cursor.SelectedPart := cpEffectParam2;
+    end;
+
+  Invalidate;
+  EndUndoAction;
+end;
+
+procedure TTrackerGrid.InputEffectParam2(Key: Word);
+var
+  Temp: Nibble;
+begin
+  BeginUndoAction;
+  with Patterns[Cursor.X]^[Cursor.Y] do
+    if Key = VK_DELETE then begin
+      EffectCode := 0;
+      EffectParams.Value := 0;
+      Inc(Cursor.Y, Step);
+      ClampCursors;
+    end
+    else if KeycodeToHexNumber(Key, Temp) then begin
+      EffectParams.Param2 := Temp;
+      Cursor.SelectedPart := cpEffectParam1;
       Inc(Cursor.Y, Step);
       ClampCursors;
     end;
@@ -1326,8 +1350,12 @@ begin
       CharLeft := 9;
       CharRight := 10;
     end;
-    cpEffectParams: begin
+    cpEffectParam1: begin
       CharLeft := 10;
+      CharRight := 11;
+    end;
+    cpEffectParam2: begin
+      CharLeft := 11;
       CharRight := 12;
     end;
   end;
@@ -1359,7 +1387,8 @@ begin
       4..5: Result.SelectedPart := cpInstrument;
       6..8: Result.SelectedPart := cpVolume;
       9:   Result.SelectedPart := cpEffectCode;
-      10..12: Result.SelectedPart := cpEffectParams;
+      10: Result.SelectedPart := cpEffectParam1;
+      11..12: Result.SelectedPart := cpEffectParam2;
     end;
   end;
 end;
@@ -1451,7 +1480,7 @@ begin
       cpInstrument: Result := Instrument;
       cpVolume:;
       cpEffectCode: Result := EffectCode;
-      cpEffectParams: Result := EffectParams.Value;
+      cpEffectParam1, cpEffectParam2: Result := EffectParams.Value;
     end;
 end;
 
@@ -1463,7 +1492,7 @@ begin
       cpInstrument: Instrument := Value;
       cpVolume:;
       cpEffectCode: EffectCode := Value;
-      cpEffectParams: EffectParams.Value := Value;
+      cpEffectParam1, cpEffectParam2: EffectParams.Value := Value;
     end;
 end;
 
@@ -1484,7 +1513,7 @@ begin
       cpEffectCode:
         EffectCode := EnsureRange(EffectCode+Value, $0, $F);
 
-      cpEffectParams:
+      cpEffectParam1, cpEffectParam2:
         if EffectCode = $0 then begin
           if EffectParams.Value <> $00 then
             EffectParams.Value := EnsureRange(EffectParams.Value+Value, Low(Byte)+1, High(Byte));
@@ -1502,7 +1531,7 @@ begin
       cpInstrument: Instrument := 0;
       cpVolume: Volume := 0;
       cpEffectCode: begin EffectCode := 0; EffectParams.Value := 0; end;
-      cpEffectParams: EffectParams.Value := 0;
+      cpEffectParam1, cpEffectParam2: EffectParams.Value := 0;
     end;
 end;
 
@@ -1576,7 +1605,7 @@ begin
   Cursor.SelectedPart := cpNote;
   Other.X := High(Patterns);
   Other.Y := NumRows-1;
-  Other.SelectedPart := cpEffectParams;
+  Other.SelectedPart := cpEffectParam2;
 
   Invalidate;
 end;
@@ -1646,7 +1675,7 @@ begin
           Patterns[Cursor.X + X]^[DestY].Instrument := Selection[Y][X].Cell.Instrument;
         if cpEffectCode in Selection[Y][X].Parts then
           Patterns[Cursor.X + X]^[DestY].EffectCode := Selection[Y][X].Cell.EffectCode;
-        if cpEffectParams in Selection[Y][X].Parts then
+        if [cpEffectParam1, cpEffectParam2] * Selection[Y][X].Parts <> [] then
           Patterns[Cursor.X + X]^[DestY].EffectParams := Selection[Y][X].Cell.EffectParams;
       end;
       // Second copy (duplicate)
@@ -1658,7 +1687,7 @@ begin
           Patterns[Cursor.X + X]^[DestY].Instrument := Selection[Y][X].Cell.Instrument;
         if cpEffectCode in Selection[Y][X].Parts then
           Patterns[Cursor.X + X]^[DestY].EffectCode := Selection[Y][X].Cell.EffectCode;
-        if cpEffectParams in Selection[Y][X].Parts then
+        if [cpEffectParam1, cpEffectParam2] * Selection[Y][X].Parts <> [] then
           Patterns[Cursor.X + X]^[DestY].EffectParams := Selection[Y][X].Cell.EffectParams;
       end;
     end;
@@ -1694,7 +1723,7 @@ begin
             Patterns[Cursor.X + X]^[DestY].Instrument := Selection[Y][X].Cell.Instrument;
           if cpEffectCode in Selection[Y][X].Parts then
             Patterns[Cursor.X + X]^[DestY].EffectCode := Selection[Y][X].Cell.EffectCode;
-          if cpEffectParams in Selection[Y][X].Parts then
+          if [cpEffectParam1, cpEffectParam2] * Selection[Y][X].Parts <> [] then
             Patterns[Cursor.X + X]^[DestY].EffectParams := Selection[Y][X].Cell.EffectParams;
         end;
       end;

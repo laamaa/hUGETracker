@@ -139,7 +139,7 @@ function GetFamitrackerPastedCells: TSelection;
       COLUMN_NOTE: Exit(cpNote);
       COLUMN_INSTRUMENT: Exit(cpInstrument);
       COLUMN_VOLUME: Exit(cpVolume);
-      COLUMN_EFF1..COLUMN_EFF4: Exit(cpEffectParams);
+      COLUMN_EFF1..COLUMN_EFF4: Exit(cpEffectParam1);
     end;
   end;
 var
@@ -163,13 +163,17 @@ begin
       SetLength(Result[I], ClipInfo.Channels);
       for CH := 0 to ClipInfo.Channels-1 do begin
         Result[I, CH].Cell := FTMNoteToCell(FTMNotes[(CH * ClipInfo.Rows) + I]);
-        Result[I, CH].Parts := [cpNote, cpInstrument, cpVolume, cpEffectCode, cpEffectParams];
+        Result[I, CH].Parts := [cpNote, cpInstrument, cpVolume, cpEffectCode, cpEffectParam1, cpEffectParam2];
       end;
     end;
 
     for I := 0 to ClipInfo.Rows-1 do begin
-      Result[I, 0].Parts *= [FTMColumnToPart(ClipInfo.StartColumn)..cpEffectParams];
-      Result[I, ClipInfo.Channels-1].Parts *= [cpNote..FTMColumnToPart(ClipInfo.EndColumn)];
+      Result[I, 0].Parts *= [FTMColumnToPart(ClipInfo.StartColumn)..cpEffectParam2];
+      // When FTM end column is an effect column, include both nibble parts
+      if FTMColumnToPart(ClipInfo.EndColumn) = cpEffectParam1 then
+        Result[I, ClipInfo.Channels-1].Parts *= [cpNote..cpEffectParam2]
+      else
+        Result[I, ClipInfo.Channels-1].Parts *= [cpNote..FTMColumnToPart(ClipInfo.EndColumn)];
     end;
   finally
     S.Free;
@@ -194,7 +198,7 @@ begin
   EffectCode := Cell.Substring(8, 1);
   EffectParam := Cell.Substring(9, 2);
 
-  Result.Parts := [cpNote, cpInstrument, cpEffectCode, cpEffectParams];
+  Result.Parts := [cpNote, cpInstrument, cpEffectCode, cpEffectParam1, cpEffectParam2];
 
   if Trim(Note) = '' then Exclude(Result.Parts, cpNote)
   else if not NoteToCodeMap.TryGetData(Note, Result.Cell.Note) then
@@ -207,7 +211,7 @@ begin
   if StrToInt_(EffectParam, Temp, True) then
     Result.Cell.EffectParams.Value := Temp
   else
-    Exclude(Result.Parts, cpEffectParams);
+    Result.Parts -= [cpEffectParam1, cpEffectParam2];
 end;
 
 function GetPastedCells: TSelection;
@@ -265,7 +269,7 @@ begin
 
   Result += '...'; // volume
 
-  if (cpEffectCode in Cell.Parts) or (cpEffectParams in Cell.Parts) then
+  if (cpEffectCode in Cell.Parts) or ([cpEffectParam1, cpEffectParam2] * Cell.Parts <> []) then
     Result += EffectCodeToStr(Cell.Cell.EffectCode, Cell.Cell.EffectParams)
   else
     Result += '   ';

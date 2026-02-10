@@ -314,7 +314,8 @@ type
     cpInstrument = 1,
     cpVolume = 2,
     cpEffectCode = 3,
-    cpEffectParams = 4
+    cpEffectParam1 = 4,
+    cpEffectParam2 = 5
   );
 
   TSelectionPos = record

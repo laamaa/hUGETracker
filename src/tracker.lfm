@@ -2195,7 +2195,10 @@ object frmTracker: TfrmTracker
     end
     object MenuItem16: TMenuItem
       Caption = 'Tools'
-      Visible = False
+      object CleanUpSongMenuItem: TMenuItem
+        Caption = 'Clean up song'
+        OnClick = CleanUpSongClick
+      end
       object MenuItem24: TMenuItem
         Caption = 'Find unused elements of song'
       end

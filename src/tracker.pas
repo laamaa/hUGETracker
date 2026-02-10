@@ -131,6 +131,7 @@ type
     GBSaveDialog: TSaveDialog;
     Label13: TLabel;
     MenuItem16: TMenuItem;
+    CleanUpSongMenuItem: TMenuItem;
     MenuItem23: TMenuItem;
     MenuItem24: TMenuItem;
     MenuItem25: TMenuItem;
@@ -321,6 +322,7 @@ type
     TreeView1: TTreeView;
     TrackerGrid: TTrackerGrid;
     TableGrid: TTableGrid;
+    procedure CleanUpSongClick(Sender: TObject);
     procedure FileSave1Execute(Sender: TObject);
     procedure MenuItem10Click(Sender: TObject);
     procedure MenuItem15Click(Sender: TObject);
@@ -1017,7 +1019,7 @@ begin
   if PageControl1.TabIndex = 2 then // Instruments tab — use TableGrid
     Grid := TableGrid;
 
-  if Grid.Cursor.SelectedPart in [cpEffectCode, cpEffectParams] then begin
+  if Grid.Cursor.SelectedPart in [cpEffectCode, cpEffectParam1, cpEffectParam2] then begin
     Cell := Grid.GetCellAt(Grid.Cursor);
     StatusBar1.Panels[0].Text := EffectCodeToStr(Cell.EffectCode, Cell.EffectParams)
       + ' - ' + EffectToExplanation(Cell.EffectCode, Cell.EffectParams);
@@ -3080,6 +3082,27 @@ begin
   LengthTrackbar.Enabled := LengthEnabledCheckbox.Checked;
   CurrentInstrument^.LengthEnabled := LengthEnabledCheckbox.Checked;
   EnvelopePaintBox.Invalidate;
+end;
+
+procedure TfrmTracker.CleanUpSongClick(Sender: TObject);
+var
+  RemovedCount, MergedCount: Integer;
+begin
+  if MessageDlg('Clean up song',
+    'This will remove unreferenced patterns and merge duplicates. Continue?',
+    mtConfirmation, [mbYes, mbNo], 0) <> mrYes then
+    Exit;
+
+  CopyOrderGridToOrderMatrix;
+  CleanupSong(Song, RemovedCount, MergedCount);
+  CopyOrderMatrixToOrderGrid;
+  ReloadPatterns;
+
+  if (RemovedCount = 0) and (MergedCount = 0) then
+    StatusBar1.Panels[0].Text := 'Song is already clean'
+  else
+    StatusBar1.Panels[0].Text := 'Cleanup: removed ' + IntToStr(RemovedCount)
+      + ' patterns, merged ' + IntToStr(MergedCount) + ' duplicates';
 end;
 
 end.

@@ -122,6 +122,7 @@ function UpgradeSong(S: TSongV4): TSong; overload;
 //function UpgradeSong(S: TSongV5): TSong; overload;
 
 function OptimizeSong(const S: TSong): TSong;
+procedure CleanupSong(var S: TSong; out RemovedCount, MergedCount: Integer);
 
 implementation
 
@@ -810,6 +811,100 @@ begin
     SV6.Patterns.Add(S.Patterns.Keys[I], ConvertPattern(S.Patterns.Data[I]));
 
   Result := SV6;
+end;
+
+procedure CleanupSong(var S: TSong; out RemovedCount, MergedCount: Integer);
+var
+  Referenced: array of Integer;
+  RefCount, I, J, C, R: Integer;
+  OldKey, NewKey: Integer;
+  Found: Boolean;
+  OldKeys: array of Integer;
+  TempPats: array of PPattern;
+  MapCount: Integer;
+begin
+  RemovedCount := 0;
+  MergedCount := 0;
+
+  // 1. Collect referenced pattern numbers from the order matrix
+  RefCount := 0;
+  SetLength(Referenced, 0);
+  for C := 0 to 3 do
+    for R := 0 to High(S.OrderMatrix[C]) - 1 do begin
+      OldKey := S.OrderMatrix[C, R];
+      Found := False;
+      for I := 0 to RefCount - 1 do
+        if Referenced[I] = OldKey then begin Found := True; Break; end;
+      if not Found then begin
+        SetLength(Referenced, RefCount + 1);
+        Referenced[RefCount] := OldKey;
+        Inc(RefCount);
+      end;
+    end;
+
+  // 2. Remove unreferenced patterns
+  I := 0;
+  while I < S.Patterns.Count do begin
+    OldKey := S.Patterns.Keys[I];
+    Found := False;
+    for J := 0 to RefCount - 1 do
+      if Referenced[J] = OldKey then begin Found := True; Break; end;
+    if not Found then begin
+      S.Patterns.DeletePattern(OldKey);
+      Inc(RemovedCount);
+    end
+    else
+      Inc(I);
+  end;
+
+  // 3. De-duplicate identical patterns
+  I := 0;
+  while I < S.Patterns.Count do begin
+    J := I + 1;
+    while J < S.Patterns.Count do begin
+      if CompareByte(S.Patterns.Data[I]^, S.Patterns.Data[J]^, SizeOf(TPattern)) = 0 then begin
+        OldKey := S.Patterns.Keys[J];
+        NewKey := S.Patterns.Keys[I];
+        // Update all order matrix references from duplicate to original
+        for C := 0 to 3 do
+          for R := 0 to High(S.OrderMatrix[C]) - 1 do
+            if S.OrderMatrix[C, R] = OldKey then
+              S.OrderMatrix[C, R] := NewKey;
+        S.Patterns.DeletePattern(OldKey);
+        Inc(MergedCount);
+      end
+      else
+        Inc(J);
+    end;
+    Inc(I);
+  end;
+
+  // 4. Renumber sequentially — modify the existing map in place so that
+  //    external references (e.g. TrackerGrid.PatternMap) remain valid
+  MapCount := S.Patterns.Count;
+  SetLength(OldKeys, MapCount);
+  SetLength(TempPats, MapCount);
+  for I := 0 to MapCount - 1 do begin
+    OldKeys[I] := S.Patterns.Keys[I];
+    TempPats[I] := S.Patterns.Data[I];
+  end;
+
+  // Clear the map without disposing pattern data
+  for I := S.Patterns.Count - 1 downto 0 do
+    S.Patterns.Remove(S.Patterns.Keys[I]);
+
+  // Re-add with sequential keys
+  for I := 0 to MapCount - 1 do
+    S.Patterns.Add(I, TempPats[I]);
+
+  // Update order matrix references
+  for C := 0 to 3 do
+    for R := 0 to High(S.OrderMatrix[C]) - 1 do
+      for I := 0 to MapCount - 1 do
+        if S.OrderMatrix[C, R] = OldKeys[I] then begin
+          S.OrderMatrix[C, R] := I;
+          Break;
+        end;
 end;
 
 function OptimizeSong(const S: TSong): TSong;
