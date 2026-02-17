@@ -13,16 +13,14 @@ The keyboard layout has been reworked to match [Impulse Tracker](https://en.wiki
 
 ### View navigation
 
-Tabs are now accessed with Ctrl+Number instead of Alt+Letter:
+Tabs are accessed via function keys:
 
-| Action | Original | New |
-|--------|----------|-----|
-| General tab | Alt+G | Ctrl+1 |
-| Patterns tab | Alt+P | Ctrl+2 (also F2) |
-| Instruments tab | Alt+I | Ctrl+3 (also F3) |
-| Waves tab | Alt+W | Ctrl+4 |
-| Comments tab | Alt+C | Ctrl+5 |
-| Routines tab | Alt+R | Ctrl+6 |
+| Action | Key |
+|--------|-----|
+| General tab | F1 |
+| Patterns tab | F2 |
+| Instruments tab | F3 |
+| Waves tab | F4 |
 
 ### Playback
 
@@ -44,27 +42,35 @@ New note input behaviors matching IT:
 
 ### Block/selection operations (new)
 
-A full set of IT-style Alt+key block operations:
+A full set of IT-style Cmd+key block operations:
 
 | Shortcut | Action |
 |----------|--------|
-| Alt+B | Mark block begin |
-| Alt+E | Mark block end |
-| Alt+D | Quick select (16 rows from cursor) |
-| Alt+L | Select entire column |
-| Alt+U | Deselect |
-| Alt+Z | Cut block |
-| Alt+C | Copy block |
-| Alt+P | Paste block |
-| Alt+M | Mix paste |
-| Alt+O | Overwrite paste |
-| Alt+R | Repeat paste |
-| Alt+K | Interpolate values in selection |
-| Alt+Q | Transpose selection up |
-| Alt+A | Transpose selection down |
-| Alt+S | Set instrument on selection |
-| Alt+F | Double block length |
-| Alt+G | Halve block length |
+| Cmd+B | Mark block begin |
+| Cmd+E | Mark block end |
+| Cmd+D | Quick select (16 rows from cursor) |
+| Cmd+L | Select entire column |
+| Cmd+U | Deselect |
+| Cmd+Z | Cut block |
+| Cmd+C | Copy block |
+| Cmd+P | Paste block |
+| Cmd+M | Mix paste |
+| Cmd+O | Overwrite paste |
+| Cmd+R | Repeat paste |
+| Cmd+K | Interpolate values in selection |
+| Cmd+Q | Transpose selection up |
+| Cmd+A | Transpose selection down |
+| Cmd+S | Set instrument on selection |
+| Cmd+F | Double block length |
+| Cmd+G | Halve block length |
+
+### Base octave
+
+| Shortcut | Action |
+|----------|--------|
+| Ctrl+1 – Ctrl+6 | Set base octave (0–5) |
+| Numpad * | Increase base octave |
+| Numpad / | Decrease base octave |
 
 ### Instrument selection
 
@@ -72,6 +78,8 @@ A full set of IT-style Alt+key block operations:
 |----------|--------|
 | Ctrl+Up | Increment current instrument |
 | Ctrl+Down | Decrement current instrument |
+| Shift+= | Increment current instrument |
+| Shift+- | Decrement current instrument |
 
 ### Undo/redo
 
@@ -82,10 +90,42 @@ Undo and redo are now dedicated actions that only activate when the pattern grid
 | Ctrl+Z | Undo |
 | Ctrl+Y / Ctrl+Shift+Z | Redo |
 
+### Order matrix
+
+| Shortcut | Action |
+|----------|--------|
+| Cmd+Ctrl+D | Duplicate order row |
+| Cmd+Ctrl+R | Replicate order row |
+
+### Row insert/delete
+
+| Shortcut | Action |
+|----------|--------|
+| Insert | Insert row in current channel |
+| Ctrl+Insert / Shift+Insert | Insert row in all channels |
+| Backspace | Delete row in current channel |
+| Ctrl+Backspace | Delete row in all channels |
+
+### Value editing
+
+| Shortcut | Action |
+|----------|--------|
+| Ctrl+Scroll Up/Down | Increment/decrement value by 1 |
+| Ctrl+Shift+Scroll Up/Down | Increment/decrement value by octave/large step |
+| Ctrl++/- | Increment/decrement value by 1 |
+| Ctrl+Shift++/- | Increment/decrement value by 10 |
+
 ## Other changes
 
+- **WAV export without FFmpeg**: WAV rendering no longer requires FFmpeg
+- **Song cleanup**: Menu option to remove unused patterns and merge duplicates
+- **Individual FX nibble editing**: Edit each nibble of effect parameters separately
+- **Bottom bar FX help**: Shows effect command documentation in the bottom status bar
+- **Auto-switch instrument**: Navigating to a cell with an instrument column value automatically selects that instrument
+- **Advance on FX edits**: Cursor advances by the configured row step when editing effect columns
 - **Playback always loops**: Song preview always loops regardless of the loop button state
 - **Patterns tab auto-focuses grid**: Switching to the Patterns tab now automatically focuses the pattern grid, so you can start editing immediately
+- **Default row step is 1**: Row step defaults to 1 instead of 0
 - **macOS ARM64 (Apple Silicon) support**: Mac build targets `aarch64-darwin` instead of `x86_64-darwin`
 - **CI improvements**: Default CI builds macOS only; all platforms can be triggered manually via `workflow_dispatch`. Added caching for Homebrew, FFmpeg, SDL2, and RGBDS builds
 
