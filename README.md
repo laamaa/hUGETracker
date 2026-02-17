@@ -115,6 +115,10 @@ Undo and redo are now dedicated actions that only activate when the pattern grid
 | Ctrl++/- | Increment/decrement value by 1 |
 | Ctrl+Shift++/- | Increment/decrement value by 10 |
 
+## Volume column
+
+The pattern editor's volume column acts as a shortcut for the `Cxx` (set volume) effect command. It displays and accepts the low nibble of the effect parameter as a single hex digit (0–F). Typing a value in the volume column creates or updates a `Cxx` effect; pressing Delete or period clears it. The effect column still shows the full `Cxx` command.
+
 ## Other changes
 
 - **WAV export without FFmpeg**: WAV rendering no longer requires FFmpeg

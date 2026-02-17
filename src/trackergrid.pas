@@ -114,6 +114,7 @@ type
     Recall: TRedoStack;
 
     FHighlightedRow: Integer;
+    FCurrentRenderColumn: Integer;
     FFontSize: Integer;
     procedure SetFontSize(AValue: Integer);
   public
@@ -1116,8 +1117,35 @@ begin
 end;
 
 procedure TTrackerGrid.InputVolume(Key: Word);
+var
+  Temp: Nibble;
 begin
+  //if Cursor.X = 2 then Exit;
 
+  BeginUndoAction;
+  with Patterns[Cursor.X]^[Cursor.Y] do
+    if (Key = VK_DELETE) or (Key = VK_OEM_PERIOD) then begin
+      if EffectCode = $C then begin
+        EffectCode := 0;
+        EffectParams.Value := 0;
+      end;
+      Inc(Cursor.Y, Step);
+      ClampCursors;
+    end
+    else if KeycodeToHexNumber(Key, Temp) then begin
+      if EffectCode = $C then
+        EffectParams.Param2 := Temp
+      else begin
+        EffectCode := $C;
+        EffectParams.Param1 := 0;
+        EffectParams.Param2 := Temp;
+      end;
+      Inc(Cursor.Y, Step);
+      ClampCursors;
+    end;
+
+  Invalidate;
+  EndUndoAction;
 end;
 
 procedure TTrackerGrid.InputEffectCode(Key: Word);
@@ -1195,8 +1223,10 @@ begin
     Pen.Color := RGBToColor(58, 52, 39);
 
     for I := 0 to High(Patterns) do
-      if Assigned(Patterns[I]) then
+      if Assigned(Patterns[I]) then begin
+        FCurrentRenderColumn := I;
         RenderCell(Patterns[I]^[Row]);
+      end;
   end;
 end;
 
@@ -1228,9 +1258,14 @@ begin
       TextOut(PenPos.X, PenPos.Y, '..');
     end;
 
-    //Font.Color := clDark; //clGreen;
-    Font.Color := clDots;
-    TextOut(PenPos.X, PenPos.Y, '...');
+    if (Cell.EffectCode = $C) then begin
+      Font.Color := clFxVolume;
+      TextOut(PenPos.X, PenPos.Y, ' ' + IntToHex(Cell.EffectParams.Param2, 1) + ' ');
+    end
+    else begin
+      Font.Color := clDots;
+      TextOut(PenPos.X, PenPos.Y, ' . ');
+    end;
 
     if (Cell.EffectCode <> 0) or (Cell.EffectParams.Value <> 0) then begin
       Font.Color := GetEffectColor(Cell.EffectCode);
